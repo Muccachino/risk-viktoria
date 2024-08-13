@@ -6,7 +6,8 @@ public class Game {
     private int currentPlayerIndex;
     private final Random random;
     private final Map<Player, List<Card>> playerCards;
-    private final Scanner scanner;
+    private boolean isDistributing;
+    private int armiesToDistribute;
 
     public Game(Player[] players) {
         this.players = players;
@@ -14,7 +15,9 @@ public class Game {
         this.currentPlayerIndex = 0;
         this.random = new Random();
         this.playerCards = new HashMap<>();
-        this.scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
+        this.isDistributing = false;
+        this.armiesToDistribute = 16;
         initializeGame();
     }
 
@@ -24,15 +27,14 @@ public class Game {
         }
 
         List<Territory> allTerritories = new ArrayList<>(board.getTerritories().values());
-        for (int i = 0; i < 12 * players.length; i++) {
+        Collections.shuffle(allTerritories);
+
+        for (int i = 0; i < allTerritories.size(); i++) {
             Player player = players[i % players.length];
             Territory territory = allTerritories.get(i);
             territory.setOwner(player);
+            territory.addArmies(1);
             player.addTerritory(territory);
-        }
-
-        for (Player player : players) {
-            distributeInitialArmies(player, 20);
         }
 
         List<Card> allCards = new ArrayList<>();
@@ -41,29 +43,40 @@ public class Game {
         }
         Collections.shuffle(allCards);
     }
+
     public Player[] getPlayers() {
         return players;
     }
 
-    public void distributeInitialArmies(Player player, int totalArmies) {
-        System.out.println(player.getName() + ", you have " + totalArmies + " armies to distribute.");
-        while (totalArmies > 0) {
-            System.out.println("Choose one of your territories to distribute an army:");
-            for (int i = 0; i < player.getTerritories().size(); i++) {
-                Territory territory = player.getTerritories().get(i);
-                System.out.println(i + 1 + ": " + territory.getName() + " (" + territory.getArmyCount() + " armies)");
-            }
+    public boolean isDistributing() {
+        return isDistributing;
+    }
 
-            int choice = scanner.nextInt();
-            if (choice >= 1 && choice <= player.getTerritories().size()) {
-                Territory selectedTerritory = player.getTerritories().get(choice - 1);
-                selectedTerritory.addArmies(1);
-                totalArmies--;
-                System.out.println("You have placed an army at " + selectedTerritory.getName() + ". armies left: " + totalArmies);
-            } else {
-                System.out.println("You have to choose your own territory.");
-            }
+    public void startDistributingArmies() {
+        isDistributing = true;
+        armiesToDistribute = 8;
+    }
+
+    public boolean distributeArmy(Territory territory, int armies) {
+        if (!isDistributing || armies <= 0 || armies > armiesToDistribute) {
+            return false;
         }
+
+        Player currentPlayer = getCurrentPlayer();
+        if (territory.getOwner() != currentPlayer) {
+            return false;
+        }
+
+        territory.addArmies(armies);
+        currentPlayer.removeArmies(armies);
+        armiesToDistribute -= armies;
+
+        if (armiesToDistribute <= 0) {
+            isDistributing = false;
+            return true;
+        }
+
+        return true;
     }
 
     public Board getBoard() {
@@ -75,13 +88,16 @@ public class Game {
     }
 
     public void nextTurn() {
-        reinforcePhase();
-        cardReinforcementPhase();
-        attackPhase();
-        fortifyPhase();
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-        checkGameOver();
+        if (!isDistributing) {
+            reinforcePhase();
+            cardReinforcementPhase();
+            attackPhase();
+            fortifyPhase();
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            checkGameOver();
+        }
     }
+
     public boolean checkWinCondition() {
         for (Territory territory : board.getTerritories().values()) {
             if (territory.getOwner() != getCurrentPlayer()) {
@@ -133,8 +149,6 @@ public class Game {
             }
             if (territoryConquered) break;
         }
-
-
         if (territoryConquered) {
             playerCards.get(currentPlayer).add(new Card("Infantry"));
             if (playerCards.get(currentPlayer).size() > 5) {

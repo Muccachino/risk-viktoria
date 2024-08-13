@@ -17,6 +17,11 @@ public class Territory {
     public String getName() {
         return name;
     }
+    @Override
+    public String toString() {
+        return name;
+    }
+
 
     public Player getOwner() {
         return owner;
@@ -35,7 +40,7 @@ public class Territory {
     }
 
     public void removeArmies(int count) {
-        this.armyCount = Math.max(0, this.armyCount - count);
+        this.armyCount -= count;;
     }
 
     public List<Territory> getAdjacentTerritories() {

@@ -32,7 +32,7 @@ public class Player {
     }
 
     public void removeArmies(int count) {
-        this.armyCount = Math.max(0, this.armyCount - count);
+        this.armyCount -= count;
     }
 
     public int getArmyCount() {
