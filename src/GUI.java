@@ -110,7 +110,7 @@ public class GUI {
         int currentPlayerIndex = 0;
 
         while (remainingArmies > 0) {
-            Player player = players[currentPlayerIndex];
+            Player player = game.getCurrentPlayer();
             Territory selectedTerritory = (Territory) JOptionPane.showInputDialog(
                     frame,
                      player.getName() + ", select a territory to place armies:",
@@ -128,6 +128,7 @@ public class GUI {
                 ));
 
                 if (armiesToPlace >= 1 && armiesToPlace <= remainingArmies) {
+                    System.out.println(player.getName() + currentPlayerIndex);
                     boolean success = game.distributeArmy(selectedTerritory, armiesToPlace);
                     if (success) {
                         remainingArmies -= armiesToPlace;
@@ -140,7 +141,8 @@ public class GUI {
                     JOptionPane.showMessageDialog(frame, "Invalid number of armies. Must be between 1 and " + remainingArmies + ".");
                 }
             }
-            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            //currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            game.setCurrentPlayer();
         }
 
         JOptionPane.showMessageDialog(frame, "All armies are distributed. The game begins now!");
@@ -151,7 +153,7 @@ public class GUI {
         boardPanel.removeAll();
         Player currentPlayer = game.getCurrentPlayer();
         for (Territory territory : game.getBoard().getTerritories().values()) {
-            JButton button = new JButton(territory.getName() + " (" + territory.getArmyCount() + currentPlayer.getName() + ")");
+            JButton button = new JButton(territory.getName() + " (" + territory.getArmyCount() + ")");
             button.setBackground(territory.getOwner() == currentPlayer ? Color.GREEN : Color.RED);
             button.addActionListener(new ActionListener() {
                 @Override
@@ -169,6 +171,10 @@ public class GUI {
     }
 
     private void handleTerritoryClick(Territory clickedTerritory) {
+        if (clickedTerritory == null) {
+            JOptionPane.showMessageDialog(frame, "Fehler: Das ausgewählte Territorium existiert nicht.");
+            return;
+        }
         if (isDistributing) {
             return;
         }
@@ -216,7 +222,7 @@ public class GUI {
                     JOptionPane.showMessageDialog(frame, "You cannot attack your own territory.");
                     return;
                 }
-
+                    System.out.println(selectedFrom.getName() + selectedTo.getName());
                 int attackArmies = Integer.parseInt(JOptionPane.showInputDialog(frame, "Enter number of armies to attack with (1-3):"));
                 if (attackArmies >= 1 && attackArmies <= 3 && attackArmies <= selectedFrom.getArmyCount() - 1) {
                     int defendArmies = Math.min(2, selectedTo.getArmyCount());
@@ -256,43 +262,60 @@ public class GUI {
             }
             currentPlayer.addArmies(5);
             JOptionPane.showMessageDialog(frame, "You have received 5 additional armies.");
+
+            distributeBonusArmies(currentPlayer, 5);
             updateBoard();
         }
+    }
 
-          }
     private void handleAttackPhase() {
+        String diceResult = rollDiceResult();
+
         JFrame diceFrame = new JFrame("Roll Dice");
-        diceFrame.setSize(200, 200);
+        diceFrame.setSize(300, 200);
         diceFrame.setLayout(new BorderLayout());
 
-        JTextArea diceResultArea = new JTextArea();
+        JTextArea diceResultArea = new JTextArea(diceResult);
         diceResultArea.setEditable(false);
         diceFrame.add(new JScrollPane(diceResultArea), BorderLayout.CENTER);
 
-        JButton rollDiceBtn = new JButton("Roll dice");
-        rollDiceBtn.addActionListener(new ActionListener() {
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String result = rollDice();
-                diceResultArea.setText(result);
+                diceFrame.dispose();
+                game.nextTurn();
+                if (game.checkWinCondition()) {
+                    JOptionPane.showMessageDialog(frame, "Player " + game.getCurrentPlayer().getName() + " wins!");
+                    System.exit(0);
+                }
+                updateBoard();
             }
         });
-        diceFrame.add(rollDiceBtn, BorderLayout.SOUTH);
+        diceFrame.add(okButton, BorderLayout.SOUTH);
         diceFrame.setVisible(true);
     }
 
-    private String rollDice() {
-        Player currentPlayer = game.getCurrentPlayer();
-        Territory attackingTerritory = selectedFrom;
-        Territory defendingTerritory = selectedTo;
 
-        int attackDiceCount = Math.min(3, attackingTerritory.getArmyCount() - 1);
-        int defendDiceCount = Math.min(2, defendingTerritory.getArmyCount());
+    private String rollDiceResult() {
+        if (selectedFrom == null || selectedTo == null) {
+            System.out.println("Fehler: Kein Angriff ausgewählt.");
+        }
+        int attackDiceCount = Math.min(3, selectedFrom.getArmyCount());
+        int defendDiceCount = Math.min(2, selectedTo.getArmyCount());
 
-        int[] attackDice = rollDice(attackDiceCount);
-        int[] defendDice = rollDice(defendDiceCount);
+        int[] attackDice = game.rollDice(attackDiceCount);
+        int[] defendDice = game.rollDice(defendDiceCount);
+        return compareDiceResults(attackDice, defendDice);
+    }
 
+    private String compareDiceResults (int[] attackDice, int[] defendDice){
+        if (attackDice == null || defendDice == null) {
+            System.out.println("Fehler: Keine Würfelzahl vorhanden.");
+        }
+        assert attackDice != null;
         Arrays.sort(attackDice);
+        assert defendDice != null;
         Arrays.sort(defendDice);
 
         StringBuilder result = new StringBuilder();
@@ -314,13 +337,13 @@ public class GUI {
         result.append("Attacker loses ").append(attackerLosses).append(" army/armies.\n");
         result.append("Defender loses ").append(defenderLosses).append(" army/armies.\n");
 
-        attackingTerritory.removeArmies(attackerLosses);
-        defendingTerritory.removeArmies(defenderLosses);
+        selectedFrom.removeArmies(attackerLosses);
+        selectedTo.removeArmies(defenderLosses);
 
-        if (defendingTerritory.getArmyCount() == 0) {
-            game.getCurrentPlayer().addTerritory(defendingTerritory);
+        if (selectedTo.getArmyCount() == 0) {
+            game.getCurrentPlayer().addTerritory(selectedTo);
             game.getCurrentPlayer().addCard(new Card("Infantry"));
-            result.append("Territory conquered! ").append(defendingTerritory.getName()).append(" is now owned by ").append(game.getCurrentPlayer().getName()).append(".");
+            result.append("Territory conquered! ").append(selectedTo.getName()).append(" is now owned by ").append(game.getCurrentPlayer().getName()).append(".");
         }
 
         return result.toString();
@@ -332,14 +355,41 @@ public class GUI {
         }
         return reversed;
     }
-    private int[] rollDice(int numDice) {
-        Random random = new Random();
-        int[] dice = new int[numDice];
-        for (int i = 0; i < numDice; i++) {
-            dice[i] = random.nextInt(6) + 1;
-        }
-        return dice;
-    }
 
+    private void distributeBonusArmies(Player player, int armiesToDistribute) {
+        while (armiesToDistribute > 0) {
+            Territory selectedTerritory = (Territory) JOptionPane.showInputDialog(
+                    frame,
+                    player.getName() + ", select a territory to place armies:",
+                    "Distribute Armies",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    player.getTerritories().toArray(),
+                    player.getTerritories().get(0)
+            );
+
+            if (selectedTerritory != null) {
+                int armiesToPlace = Integer.parseInt(JOptionPane.showInputDialog(
+                        frame,
+                        "Enter number of armies to place (1-" + armiesToDistribute + "):"
+                ));
+
+                if (armiesToPlace >= 1 && armiesToPlace <= armiesToDistribute) {
+                    boolean success = game.distributeArmy(selectedTerritory, armiesToPlace);
+                    if (success) {
+                        armiesToDistribute -= armiesToPlace;
+                        JOptionPane.showMessageDialog(frame, "You placed " + armiesToPlace + " armies at " + selectedTerritory.getName());
+                        updateBoard();
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Failed to place armies. Try again.");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Invalid number of armies. Must be between 1 and " + armiesToDistribute + ".");
+                }
+            }
+        }
+
+        JOptionPane.showMessageDialog(frame, "All bonus armies are distributed.");
+    }
 
 }

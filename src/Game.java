@@ -15,7 +15,7 @@ public class Game {
         this.currentPlayerIndex = 0;
         this.random = new Random();
         this.playerCards = new HashMap<>();
-        Scanner scanner = new Scanner(System.in);
+       // Scanner scanner = new Scanner(System.in);
         this.isDistributing = false;
         this.armiesToDistribute = 16;
         initializeGame();
@@ -25,7 +25,6 @@ public class Game {
         for (Player player : players) {
             playerCards.put(player, new ArrayList<>());
         }
-
         List<Territory> allTerritories = new ArrayList<>(board.getTerritories().values());
         Collections.shuffle(allTerritories);
 
@@ -35,6 +34,7 @@ public class Game {
             territory.setOwner(player);
             territory.addArmies(1);
             player.addTerritory(territory);
+            System.out.println("Territory " + territory.getName() + " assigned to " + player.getName());
         }
 
         List<Card> allCards = new ArrayList<>();
@@ -54,21 +54,21 @@ public class Game {
 
     public void startDistributingArmies() {
         isDistributing = true;
-        armiesToDistribute = 8;
+        armiesToDistribute = 16;
     }
 
     public boolean distributeArmy(Territory territory, int armies) {
         if (!isDistributing || armies <= 0 || armies > armiesToDistribute) {
+            System.out.println("is not distributing" + armies);
             return false;
         }
 
         Player currentPlayer = getCurrentPlayer();
         if (territory.getOwner() != currentPlayer) {
+            System.out.println("gehört ihm nicht" + territory.getOwner().getName() + currentPlayer.getName());
             return false;
         }
-
         territory.addArmies(armies);
-        currentPlayer.removeArmies(armies);
         armiesToDistribute -= armies;
 
         if (armiesToDistribute <= 0) {
@@ -93,11 +93,13 @@ public class Game {
             cardReinforcementPhase();
             attackPhase();
             fortifyPhase();
-            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            setCurrentPlayer();
             checkGameOver();
         }
     }
-
+public void setCurrentPlayer(){
+    currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+}
     public boolean checkWinCondition() {
         for (Territory territory : board.getTerritories().values()) {
             if (territory.getOwner() != getCurrentPlayer()) {
@@ -201,7 +203,7 @@ public class Game {
         }
     }
 
-    private int[] rollDice(int numDice) {
+    public int[] rollDice(int numDice) {
         int[] dice = new int[numDice];
         for (int i = 0; i < numDice; i++) {
             dice[i] = random.nextInt(6) + 1;
