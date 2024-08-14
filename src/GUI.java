@@ -29,10 +29,10 @@ public class GUI {
 
     public void createAndShowGUI() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
+        frame.setSize(900, 800);
         frame.setLayout(new BorderLayout());
 
-        boardPanel.setLayout(new GridLayout(6, 4));
+        boardPanel.setLayout(new GridLayout(4, 6));
         updateBoard();
 
         frame.add(boardPanel, BorderLayout.CENTER);
@@ -147,21 +147,53 @@ public class GUI {
 
         JOptionPane.showMessageDialog(frame, "All armies are distributed. The game begins now!");
         updateBoard();
+        isFortifying = false;
     }
 
     private void updateBoard() {
         boardPanel.removeAll();
+        boardPanel.setLayout(null);
+        boardPanel.setBackground(Color.BLUE);
+        int rows = 4;
+        int cols = 6;
+        int buttonWidth = 120;
+        int buttonHeight = 60;
+        int padding = 20;
+        int groupSpacing = 300;
+        int startX = 20;
+        int startY = 20;
+
         Player currentPlayer = game.getCurrentPlayer();
-        for (Territory territory : game.getBoard().getTerritories().values()) {
-            JButton button = new JButton(territory.getName() + " (" + territory.getArmyCount() + ")");
-            button.setBackground(territory.getOwner() == currentPlayer ? Color.GREEN : Color.RED);
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    handleTerritoryClick(territory);
+        int territoryIndex = 0;
+        for (int group = 0; group <4; group++){
+            int groupX = startX + (group % 2) * (6 *(padding ) + groupSpacing + (padding *2 ));
+            int groupY = startY + (group / 2) * (3 * (padding) + groupSpacing);
+
+            for (int i = 0; i < 6; i++) {
+                Territory territory = game.getBoard().getTerritories().values().stream()
+                        .skip(territoryIndex++)
+                        .findFirst()
+                        .orElse(null);
+
+                if (territory == null) {
+                    continue;
                 }
-            });
-            boardPanel.add(button);
+
+                JButton button = new JButton(territory.getName() + " (" + territory.getArmyCount() + ")");
+                button.setBackground(territory.getOwner() == currentPlayer ? Color.GREEN : Color.RED);
+                button.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        handleTerritoryClick(territory);
+                    }
+                });
+                int xPosition = groupX + (i % 3) * (buttonWidth + padding);
+                int yPosition = groupY + (i / 3) * (buttonHeight + padding);
+
+                button.setBounds(xPosition, yPosition, buttonWidth, buttonHeight);
+                boardPanel.add(button);
+
+            }
         }
         statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() +
                 " | Territories: " + currentPlayer.getTerritories().size() + " | Armies: " + currentPlayer.getArmyCount() +

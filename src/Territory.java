@@ -52,4 +52,5 @@ public class Territory {
             adjacentTerritories.add(territory);
         }
     }
+
 }
