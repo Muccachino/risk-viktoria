@@ -1,3 +1,5 @@
+package Model;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -6,12 +8,15 @@ public class Territory {
     private Player owner;
     private int armyCount;
     private final List<Territory> adjacentTerritories;
+    private String continent;
+    private int territoryId;
 
-    public Territory(String name) {
+    public Territory(String name, int territoryId) {
         this.name = name;
         this.owner = null;
         this.armyCount = 0;
         this.adjacentTerritories = new ArrayList<>();
+        this.territoryId = territoryId;
     }
 
     public String getName() {
@@ -22,6 +27,7 @@ public class Territory {
         return name;
     }
 
+    public int getTerritoryId(){return territoryId;}
 
     public Player getOwner() {
         return owner;
@@ -29,6 +35,14 @@ public class Territory {
 
     public void setOwner(Player owner) {
         this.owner = owner;
+    }
+
+    public String getContinent() {
+        return continent;
+    }
+
+    public void setContinent(String continent) {
+        this.continent = continent;
     }
 
     public int getArmyCount() {

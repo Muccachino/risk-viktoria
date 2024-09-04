@@ -1,10 +1,20 @@
+package View;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
+
+import Config.BoardCoordinates;
+import Config.Helper;
+import Controller.Game;
+import Model.Territory;
+import Model.Player;
+import Model.Card;
 
 public class GUI {
     private final Game game;
@@ -15,6 +25,9 @@ public class GUI {
     private Territory selectedTo;
     private boolean isFortifying;
     private boolean isDistributing;
+    boolean isInitialDistribution = true;
+
+    public Map<String, JPanel> allTerritoryPanels = new HashMap<>();
 
     public GUI(Game game) {
         this.game = game;
@@ -29,7 +42,7 @@ public class GUI {
 
     public void createAndShowGUI() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(900, 800);
+        frame.setSize(1200, 800);
         frame.setLayout(new BorderLayout());
 
         boardPanel.setLayout(new GridLayout(4, 6));
@@ -104,100 +117,138 @@ public class GUI {
         frame.setVisible(true);
     }
 
-    private void distributeInitialArmies() {
-        int remainingArmies = 16;
-        Player[] players = game.getPlayers();
-        int currentPlayerIndex = 0;
-
-        while (remainingArmies > 0) {
-            Player player = game.getCurrentPlayer();
-            Territory selectedTerritory = (Territory) JOptionPane.showInputDialog(
-                    frame,
-                     player.getName() + ", select a territory to place armies:",
-                    "Distribute Armies",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    player.getTerritories().toArray(),
-                    player.getTerritories().get(0)
-            );
-
-            if (selectedTerritory != null) {
-                int armiesToPlace = Integer.parseInt(JOptionPane.showInputDialog(
-                        frame,
-                        "Enter number of armies to place (1-" + remainingArmies + "):"
-                ));
-
-                if (armiesToPlace >= 1 && armiesToPlace <= remainingArmies) {
-                    System.out.println(player.getName() + currentPlayerIndex);
-                    boolean success = game.distributeArmy(selectedTerritory, armiesToPlace);
-                    if (success) {
-                        remainingArmies -= armiesToPlace;
-                        JOptionPane.showMessageDialog(frame, "You placed " + armiesToPlace + " armies at " + selectedTerritory.getName());
-                        updateBoard();
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "Failed to place armies. Try again.");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Invalid number of armies. Must be between 1 and " + remainingArmies + ".");
-                }
-            }
-            //currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-            game.setCurrentPlayer();
-        }
-
-        JOptionPane.showMessageDialog(frame, "All armies are distributed. The game begins now!");
-        updateBoard();
-        isFortifying = false;
-    }
-
     private void updateBoard() {
         boardPanel.removeAll();
-        boardPanel.setLayout(null);
-        boardPanel.setBackground(Color.BLUE);
-        int rows = 4;
-        int cols = 6;
-        int buttonWidth = 120;
-        int buttonHeight = 60;
-        int padding = 20;
-        int groupSpacing = 300;
-        int startX = 20;
-        int startY = 20;
+        boardPanel.setBackground(new Color(153,204,255));
+        GridBagLayout boardLayout = new GridBagLayout();
+        GridBagConstraints boardConstraints = new GridBagConstraints();
 
         Player currentPlayer = game.getCurrentPlayer();
-        int territoryIndex = 0;
-        for (int group = 0; group <4; group++){
-            int groupX = startX + (group % 2) * (6 *(padding ) + groupSpacing + (padding *2 ));
-            int groupY = startY + (group / 2) * (3 * (padding) + groupSpacing);
-
-            for (int i = 0; i < 6; i++) {
-                Territory territory = game.getBoard().getTerritories().values().stream()
-                        .skip(territoryIndex++)
-                        .findFirst()
-                        .orElse(null);
-
-                if (territory == null) {
-                    continue;
-                }
-
-                JButton button = new JButton(territory.getName() + " (" + territory.getArmyCount() + ")");
-                button.setBackground(territory.getOwner() == currentPlayer ? Color.GREEN : Color.RED);
-                button.addActionListener(new ActionListener() {
+        Map<String, Territory> allTerritories = game.getBoard().getTerritories();
+        if (game.boardChoice.equals("board1")) {
+            for (Territory territory : allTerritories.values()) {
+                JPanel territoryPanel = new BoardCreator(game).createBoardPanels1(territory, currentPlayer);
+                territoryPanel.addMouseListener(new MouseListener() {
                     @Override
-                    public void actionPerformed(ActionEvent e) {
-                        handleTerritoryClick(territory);
+                    public void mouseClicked(MouseEvent e) {
+                        if(SwingUtilities.isLeftMouseButton(e)) {
+                            handleTerritoryClick(territory);
+                        }
                     }
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if(SwingUtilities.isRightMouseButton(e)) {
+                            highlightNeigbors(territory, true);
+                        }
+                    }
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        if(SwingUtilities.isRightMouseButton(e)) {
+                            highlightNeigbors(territory, false);
+                        }
+                    }
+                    @Override
+                    public void mouseEntered(MouseEvent e) {}
+                    @Override
+                    public void mouseExited(MouseEvent e) {}
                 });
-                int xPosition = groupX + (i % 3) * (buttonWidth + padding);
-                int yPosition = groupY + (i / 3) * (buttonHeight + padding);
-
-                button.setBounds(xPosition, yPosition, buttonWidth, buttonHeight);
-                boardPanel.add(button);
-
+                allTerritoryPanels.put(territory.getName(), territoryPanel);
+                boardPanel.add(territoryPanel);
             }
         }
+        if (game.boardChoice.equals("board2")) {
+
+            boardPanel.setLayout(boardLayout);
+            boardLayout.columnWidths = new int[] {50,50,50,50,50,50,50,50};
+            boardLayout.rowHeights = new int[] {50,50,50,50,50,50,50,50};
+
+            for (int i = 0; i < BoardCoordinates.allCountryCoordinates2.length; i++) {
+                Territory territory = Helper.getTerritoryById(allTerritories, i + 1);
+                JPanel territoryPanel = new BoardCreator(game).createBoardPanels1(territory, currentPlayer);
+                territoryPanel.addMouseListener(new MouseListener() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if(SwingUtilities.isLeftMouseButton(e)) {
+                            handleTerritoryClick(territory);
+                        }
+                    }
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if(SwingUtilities.isRightMouseButton(e)) {
+                            highlightNeigbors(territory, true);
+                        }
+                    }
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        if(SwingUtilities.isRightMouseButton(e)) {
+                            highlightNeigbors(territory, false);
+                        }
+                    }
+                    @Override
+                    public void mouseEntered(MouseEvent e) {}
+                    @Override
+                    public void mouseExited(MouseEvent e) {}
+                });
+
+                allTerritoryPanels.put(territory.getName(), territoryPanel);
+                boardPanel.add(territoryPanel, Helper.buildBoardConstraints(boardConstraints,
+                        BoardCoordinates.allCountryCoordinates2[i][0],
+                        BoardCoordinates.allCountryCoordinates2[i][1],
+                        BoardCoordinates.allCountryCoordinates2[i][2],
+                        BoardCoordinates.allCountryCoordinates2[i][3]));
+            }
+        }
+        if(game.boardChoice.equals("board3")) {
+
+            boardPanel.setLayout(boardLayout);
+            boardLayout.columnWidths = new int[] {50,50,50,50,50,50,50,50,50,50,50,50};
+            boardLayout.rowHeights = new int[] {50,50,50,50,50,50,50,50};
+
+            for (int i = 0; i < BoardCoordinates.allCountryCoordinates3.length; i++) {
+                Territory territory = Helper.getTerritoryById(allTerritories, i + 1);
+                JPanel territoryPanel = new BoardCreator(game).createBoardPanels1(territory, currentPlayer);
+                territoryPanel.addMouseListener(new MouseListener() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if(SwingUtilities.isLeftMouseButton(e)) {
+                            handleTerritoryClick(territory);
+                        }
+                    }
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if(SwingUtilities.isRightMouseButton(e)) {
+                            highlightNeigbors(territory, true);
+                        }
+                    }
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        if(SwingUtilities.isRightMouseButton(e)) {
+                            highlightNeigbors(territory, false);
+                        }
+                    }
+                    @Override
+                    public void mouseEntered(MouseEvent e) {}
+                    @Override
+                    public void mouseExited(MouseEvent e) {}
+                });
+
+                allTerritoryPanels.put(territory.getName(), territoryPanel);
+                boardPanel.add(territoryPanel, Helper.buildBoardConstraints(boardConstraints,
+                        BoardCoordinates.allCountryCoordinates3[i][0],
+                        BoardCoordinates.allCountryCoordinates3[i][1],
+                        BoardCoordinates.allCountryCoordinates3[i][2],
+                        BoardCoordinates.allCountryCoordinates3[i][3]));
+            }
+        }
+        System.out.println(allTerritories.get("Territory 1").getAdjacentTerritories());
+
         statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() +
-                " | Territories: " + currentPlayer.getTerritories().size() + " | Armies: " + currentPlayer.getArmyCount() +
-                " | Cards: " + currentPlayer.getCards().size());
+                " | Territories: " + currentPlayer.getTerritories().size() +
+                " | Armies: " + currentPlayer.getArmyCount() +
+                " | Cards Total: " + currentPlayer.getCards().size() +
+                " | Infantry: " + currentPlayer.getTypedCards("Infantry").size() +
+                " | Cavalry: " + currentPlayer.getTypedCards("Cavalry").size() +
+                " | Artillery: " + currentPlayer.getTypedCards("Artillery").size());
         boardPanel.revalidate();
         boardPanel.repaint();
     }
@@ -206,6 +257,10 @@ public class GUI {
         if (clickedTerritory == null) {
             JOptionPane.showMessageDialog(frame, "Fehler: Das ausgewählte Territorium existiert nicht.");
             return;
+        }
+        if(isInitialDistribution) {
+            Player currentPlayer = game.getCurrentPlayer();
+
         }
         if (isDistributing) {
             return;
@@ -276,6 +331,53 @@ public class GUI {
                 }
             }
         }
+    }
+
+
+    private void distributeInitialArmies() {
+        int remainingArmies = 16;
+        Player[] players = game.getPlayers();
+        int currentPlayerIndex = 0;
+
+        while (remainingArmies > 0) {
+            Player player = game.getCurrentPlayer();
+            Territory selectedTerritory = (Territory) JOptionPane.showInputDialog(
+                    frame,
+                    player.getName() + ", select a territory to place armies:",
+                    "Distribute Armies",
+                    JOptionPane.OK_OPTION,
+                    null,
+                    player.getTerritories().toArray(),
+                    player.getTerritories().get(0)
+            );
+
+            if (selectedTerritory != null) {
+                int armiesToPlace = Integer.parseInt(JOptionPane.showInputDialog(
+                        frame,
+                        "Enter number of armies to place (1-" + remainingArmies + "):"
+                ));
+
+                if (armiesToPlace >= 1 && armiesToPlace <= remainingArmies) {
+                    System.out.println(player.getName() + currentPlayerIndex);
+                    boolean success = game.distributeArmy(selectedTerritory, armiesToPlace);
+                    if (success) {
+                        remainingArmies -= armiesToPlace;
+                        JOptionPane.showMessageDialog(frame, "You placed " + armiesToPlace + " armies at " + selectedTerritory.getName());
+                        updateBoard();
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Failed to place armies. Try again.");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Invalid number of armies. Must be between 1 and " + remainingArmies + ".");
+                }
+            }
+            //currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            game.setCurrentPlayer();
+        }
+
+        JOptionPane.showMessageDialog(frame, "All armies are distributed. The game begins now!");
+        updateBoard();
+        isFortifying = false;
     }
 
     private void useCards() {
@@ -422,6 +524,28 @@ public class GUI {
         }
 
         JOptionPane.showMessageDialog(frame, "All bonus armies are distributed.");
+    }
+
+    public void highlightNeigbors(Territory selectedTerritory, boolean active) {
+        List<Territory> allNeighbors = game.getBoard().getTerritory(selectedTerritory.getName()).getAdjacentTerritories();
+        List<JPanel> allNeighborPanels = new ArrayList<>();
+
+        for (Territory neighbor : allNeighbors) {
+            JPanel neighborPanel = allTerritoryPanels.get(neighbor.getName());
+            if(active) {
+                allNeighborPanels.add(neighborPanel);
+            }
+            else {
+                neighborPanel.setBackground(neighbor.getOwner().getPlayerColor());
+            }
+        }
+
+        if(active) {
+            for (JPanel neighborPanel : allNeighborPanels) {
+                neighborPanel.setBackground(new Color(255, 122, 113));
+            }
+        }
+
     }
 
 }

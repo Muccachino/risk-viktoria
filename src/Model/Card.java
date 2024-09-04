@@ -1,3 +1,5 @@
+package Model;
+
 public class Card {
     private final String type;
 

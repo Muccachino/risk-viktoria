@@ -1,3 +1,11 @@
+package Controller;
+
+import Model.Board;
+import Model.Card;
+import Model.Continent;
+import Model.Player;
+import Model.Territory;
+
 import java.util.*;
 
 public class Game {
@@ -8,14 +16,16 @@ public class Game {
     private final Map<Player, List<Card>> playerCards;
     private boolean isDistributing;
     private int armiesToDistribute;
+    public String boardChoice;
 
-    public Game(Player[] players) {
+
+    public Game(Player[] players, String boardChoice) {
+        this.boardChoice = boardChoice;
         this.players = players;
-        this.board = new Board();
+        this.board = new Board(boardChoice);
         this.currentPlayerIndex = 0;
         this.random = new Random();
         this.playerCards = new HashMap<>();
-       // Scanner scanner = new Scanner(System.in);
         this.isDistributing = false;
         this.armiesToDistribute = 16;
         initializeGame();
@@ -37,9 +47,12 @@ public class Game {
             System.out.println("Territory " + territory.getName() + " assigned to " + player.getName());
         }
 
+        // New Card Types added
         List<Card> allCards = new ArrayList<>();
         for (int i = 0; i < 24; i++) {
             allCards.add(new Card("Infantry"));
+            allCards.add(new Card("Cavalry"));
+            allCards.add(new Card("Artillery"));
         }
         Collections.shuffle(allCards);
     }
@@ -97,9 +110,10 @@ public class Game {
             checkGameOver();
         }
     }
-public void setCurrentPlayer(){
+    public void setCurrentPlayer(){
     currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
 }
+
     public boolean checkWinCondition() {
         for (Territory territory : board.getTerritories().values()) {
             if (territory.getOwner() != getCurrentPlayer()) {
@@ -218,6 +232,15 @@ public void setCurrentPlayer(){
         }
     }
 
+    public boolean initialArmiesDistributed() {
+        for (Player player : this.players) {
+            if(player.getArmyCount() != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean isGameOver() {
         Set<Player> activePlayers = new HashSet<>();
         for (Player player : players) {
@@ -231,7 +254,7 @@ public void setCurrentPlayer(){
     public void checkGameOver() {
         if (isGameOver()) {
             Player winner = getCurrentPlayer();
-            System.out.println("Game Over! " + winner.getName() + " wins!");
+            System.out.println("Controller.Game Over! " + winner.getName() + " wins!");
         }
     }
 }
