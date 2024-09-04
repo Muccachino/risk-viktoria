@@ -5,7 +5,9 @@ import Model.Card;
 import Model.Continent;
 import Model.Player;
 import Model.Territory;
+import View.UseCards;
 
+import javax.swing.*;
 import java.util.*;
 
 public class Game {
@@ -44,7 +46,7 @@ public class Game {
             territory.setOwner(player);
             territory.addArmies(1);
             player.addTerritory(territory);
-            System.out.println("Territory " + territory.getName() + " assigned to " + player.getName());
+            //System.out.println("Territory " + territory.getName() + " assigned to " + player.getName());
         }
 
         // New Card Types added
@@ -70,6 +72,10 @@ public class Game {
         armiesToDistribute = 16;
     }
 
+    public void distributeInitialArmies(Territory territory) {
+        territory.addArmies(1);
+        getCurrentPlayer().removeArmies(1);
+    }
     public boolean distributeArmy(Territory territory, int armies) {
         if (!isDistributing || armies <= 0 || armies > armiesToDistribute) {
             System.out.println("is not distributing" + armies);
@@ -81,7 +87,7 @@ public class Game {
             System.out.println("gehört ihm nicht" + territory.getOwner().getName() + currentPlayer.getName());
             return false;
         }
-        territory.addArmies(armies);
+        territory.addArmies(1);
         armiesToDistribute -= armies;
 
         if (armiesToDistribute <= 0) {
@@ -239,6 +245,38 @@ public class Game {
             }
         }
         return true;
+    }
+
+    public void openUseCardsWindow(JFrame parent) {
+        new UseCards(parent, this).createUseCardsDialog();
+    }
+
+    public boolean checkThreeCardCombination(String type) {
+        Player currentPlayer = getCurrentPlayer();
+        List<Card> allCards = currentPlayer.getCards();
+        int count = 0;
+        for (Card card : allCards) {
+            if (card.getType().equals(type)) {
+                count++;
+            }
+        }
+        return count >= 3;
+    }
+
+    public boolean checkOneOfEachCard() {
+        Player currentPlayer = getCurrentPlayer();
+        List<Card> allCards = currentPlayer.getCards();
+        int infantry = 0;
+        int cavalry = 0;
+        int artillery = 0;
+        for (Card card : allCards) {
+            switch (card.getType()) {
+                case "Infantry": infantry++; break;
+                case "Cavalry": cavalry++; break;
+                case "Artillery": artillery++; break;
+            }
+        }
+        return (infantry > 0 && cavalry > 0 && artillery > 0);
     }
 
     public boolean isGameOver() {

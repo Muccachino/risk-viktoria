@@ -24,8 +24,11 @@ public class GUI {
     private Territory selectedFrom;
     private Territory selectedTo;
     private boolean isFortifying;
-    private boolean isDistributing;
     boolean isInitialDistribution = true;
+
+    JButton nextTurnButton;
+    JButton fortifyButton;
+    JButton useCardButton;
 
     public Map<String, JPanel> allTerritoryPanels = new HashMap<>();
 
@@ -37,7 +40,6 @@ public class GUI {
         this.selectedFrom = null;
         this.selectedTo = null;
         this.isFortifying = false;
-        this.isDistributing = false;
     }
 
     public void createAndShowGUI() {
@@ -51,7 +53,7 @@ public class GUI {
         frame.add(boardPanel, BorderLayout.CENTER);
         frame.add(statusLabel, BorderLayout.SOUTH);
 
-        JButton nextTurnButton = new JButton("Next Turn");
+        nextTurnButton = new JButton("Next Turn");
         nextTurnButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -70,51 +72,36 @@ public class GUI {
         });
 
         JPanel controlPanel = new JPanel();
+        nextTurnButton.setEnabled(false);
         controlPanel.add(nextTurnButton);
 
-        JButton fortifyButton = new JButton("Fortify");
+        fortifyButton = new JButton("Fortify");
         fortifyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 isFortifying = !isFortifying;
                 fortifyButton.setText(isFortifying ? "Attack" : "Fortify");
                 statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Fortify Mode: " + isFortifying + ")");
-                isDistributing = false;
             }
         });
+        fortifyButton.setEnabled(false);
         controlPanel.add(fortifyButton);
 
-        JButton distributeButton = new JButton("Distribute Armies");
-        distributeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!game.isDistributing()) {
-                    game.startDistributingArmies();
-                    isDistributing = true;
-                    distributeButton.setText("Done");
-                    statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Distribute Mode: " + isDistributing + ")");
-                    distributeInitialArmies();
-                } else {
-                    isDistributing = false;
-                    distributeButton.setText("Distribute Armies");
-                    statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName());
-                    updateBoard();
-                }
-            }
-        });
-        controlPanel.add(distributeButton);
 
-        JButton useCardButton = new JButton("Use Cards");
+        useCardButton = new JButton("Use Cards");
         useCardButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 useCards();
             }
         });
+        useCardButton.setEnabled(false);
         controlPanel.add(useCardButton);
 
         frame.add(controlPanel, BorderLayout.NORTH);
         frame.setVisible(true);
+
+        JOptionPane.showMessageDialog(frame, game.getCurrentPlayer().getName() + ", please choose a country to set your army.", "Distribution", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void updateBoard() {
@@ -240,8 +227,6 @@ public class GUI {
                         BoardCoordinates.allCountryCoordinates3[i][3]));
             }
         }
-        System.out.println(allTerritories.get("Territory 1").getAdjacentTerritories());
-
         statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() +
                 " | Territories: " + currentPlayer.getTerritories().size() +
                 " | Armies: " + currentPlayer.getArmyCount() +
@@ -258,12 +243,30 @@ public class GUI {
             JOptionPane.showMessageDialog(frame, "Fehler: Das ausgewählte Territorium existiert nicht.");
             return;
         }
-        if(isInitialDistribution) {
-            Player currentPlayer = game.getCurrentPlayer();
 
-        }
-        if (isDistributing) {
-            return;
+        if(isInitialDistribution) {
+            if(game.getCurrentPlayer() == clickedTerritory.getOwner()) {
+                game.distributeInitialArmies(clickedTerritory);
+                game.setCurrentPlayer();
+                updateBoard();
+            }
+            else {
+                JOptionPane.showMessageDialog(frame, "Please choose a country you own", "Distribution", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if(!game.initialArmiesDistributed()) {
+                JOptionPane.showMessageDialog(frame, game.getCurrentPlayer().getName() + ", please choose a country to set your army.", "Distribution", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            else {
+                isInitialDistribution = false;
+                JOptionPane.showMessageDialog(frame, "Distribution done.\nGood Luck everyone.", "Distribution", JOptionPane.INFORMATION_MESSAGE);
+                nextTurnButton.setEnabled(true);
+                fortifyButton.setEnabled(true);
+                useCardButton.setEnabled(true);
+                return;
+            }
         }
 
         if (isFortifying) {
@@ -309,6 +312,7 @@ public class GUI {
                     JOptionPane.showMessageDialog(frame, "You cannot attack your own territory.");
                     return;
                 }
+
                     System.out.println(selectedFrom.getName() + selectedTo.getName());
                 int attackArmies = Integer.parseInt(JOptionPane.showInputDialog(frame, "Enter number of armies to attack with (1-3):"));
                 if (attackArmies >= 1 && attackArmies <= 3 && attackArmies <= selectedFrom.getArmyCount() - 1) {
@@ -333,53 +337,6 @@ public class GUI {
         }
     }
 
-
-    private void distributeInitialArmies() {
-        int remainingArmies = 16;
-        Player[] players = game.getPlayers();
-        int currentPlayerIndex = 0;
-
-        while (remainingArmies > 0) {
-            Player player = game.getCurrentPlayer();
-            Territory selectedTerritory = (Territory) JOptionPane.showInputDialog(
-                    frame,
-                    player.getName() + ", select a territory to place armies:",
-                    "Distribute Armies",
-                    JOptionPane.OK_OPTION,
-                    null,
-                    player.getTerritories().toArray(),
-                    player.getTerritories().get(0)
-            );
-
-            if (selectedTerritory != null) {
-                int armiesToPlace = Integer.parseInt(JOptionPane.showInputDialog(
-                        frame,
-                        "Enter number of armies to place (1-" + remainingArmies + "):"
-                ));
-
-                if (armiesToPlace >= 1 && armiesToPlace <= remainingArmies) {
-                    System.out.println(player.getName() + currentPlayerIndex);
-                    boolean success = game.distributeArmy(selectedTerritory, armiesToPlace);
-                    if (success) {
-                        remainingArmies -= armiesToPlace;
-                        JOptionPane.showMessageDialog(frame, "You placed " + armiesToPlace + " armies at " + selectedTerritory.getName());
-                        updateBoard();
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "Failed to place armies. Try again.");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Invalid number of armies. Must be between 1 and " + remainingArmies + ".");
-                }
-            }
-            //currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-            game.setCurrentPlayer();
-        }
-
-        JOptionPane.showMessageDialog(frame, "All armies are distributed. The game begins now!");
-        updateBoard();
-        isFortifying = false;
-    }
-
     private void useCards() {
         Player currentPlayer = game.getCurrentPlayer();
         List<Card> cards = currentPlayer.getCards();
@@ -389,7 +346,8 @@ public class GUI {
             return;
         }
 
-        int response = JOptionPane.showConfirmDialog(frame, "Do you want to trade 3 cards for 5 armies?");
+        game.openUseCardsWindow(frame);
+        /*int response = JOptionPane.showConfirmDialog(frame, "Do you want to trade 3 cards for 5 armies?");
         if (response == JOptionPane.YES_OPTION) {
             for (int i = 0; i < 3; i++) {
                 currentPlayer.useCard();
@@ -399,7 +357,7 @@ public class GUI {
 
             distributeBonusArmies(currentPlayer, 5);
             updateBoard();
-        }
+        }*/
     }
 
     private void handleAttackPhase() {

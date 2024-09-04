@@ -2,7 +2,6 @@ package Model;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -11,12 +10,12 @@ public class Player {
     private final List<Territory> territories;
     private int armyCount;
     private List<Card> cards;
-    private Color playerColor;
+    private final Color playerColor;
 
     public Player(String name, Color playerColor) {
         this.name = name;
         this.territories = new ArrayList<>();
-        this.armyCount = 6;
+        this.armyCount = 1;
         this.cards = new ArrayList<>();
         this.playerColor = playerColor;
     }
