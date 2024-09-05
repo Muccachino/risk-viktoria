@@ -1,6 +1,6 @@
 package Controller;
 
-import View.GUI;
+import Model.Card;
 import Model.Player;
 import View.StartMenu;
 
@@ -10,7 +10,7 @@ import java.awt.*;
 // added new StartMenu Window to choose player colors, names and boards
 public class Main {
 
-    private Color[] playerColors = new Color[4];
+    private final Color[] playerColors = new Color[4];
 
     JFrame startMenuFrame;
 
@@ -90,11 +90,15 @@ public class Main {
         Player[] players = new Player[numOfPlayers];
         for (int i = 0; i < numOfPlayers; i++) {
             players[i] = new Player(playerNames[i], playerColors[i]);
+            //TODO: Remove initial test cards
+            players[i].addCard(new Card("Infantry"));
+            players[i].addCard(new Card("Cavalry"));
+            players[i].addCard(new Card("Cavalry"));
+            players[i].addCard(new Card("Cavalry"));
+            players[i].addCard(new Card("Artillery"));
         }
 
         Game game = new Game(players, boardChoice);
-        GUI gui = new GUI(game);
-        javax.swing.SwingUtilities.invokeLater(gui::createAndShowGUI);
         startMenuFrame.dispose();
     }
 

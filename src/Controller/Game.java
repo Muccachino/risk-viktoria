@@ -5,6 +5,7 @@ import Model.Card;
 import Model.Continent;
 import Model.Player;
 import Model.Territory;
+import View.GUI;
 import View.UseCards;
 
 import javax.swing.*;
@@ -13,13 +14,14 @@ import java.util.*;
 public class Game {
     private final Board board;
     private final Player[] players;
+
     private int currentPlayerIndex;
     private final Random random;
     private final Map<Player, List<Card>> playerCards;
     private boolean isDistributing;
     private int armiesToDistribute;
     public String boardChoice;
-
+    GUI gui;
 
     public Game(Player[] players, String boardChoice) {
         this.boardChoice = boardChoice;
@@ -50,6 +52,7 @@ public class Game {
         }
 
         // New Card Types added
+        //TODO: Switch from deck of cards to always random card, to avoid running out of cards
         List<Card> allCards = new ArrayList<>();
         for (int i = 0; i < 24; i++) {
             allCards.add(new Card("Infantry"));
@@ -57,6 +60,9 @@ public class Game {
             allCards.add(new Card("Artillery"));
         }
         Collections.shuffle(allCards);
+
+        gui = new GUI(this);
+        javax.swing.SwingUtilities.invokeLater(gui::createAndShowGUI);
     }
 
     public Player[] getPlayers() {
@@ -72,7 +78,7 @@ public class Game {
         armiesToDistribute = 16;
     }
 
-    public void distributeInitialArmies(Territory territory) {
+    public void distributeArmies(Territory territory) {
         territory.addArmies(1);
         getCurrentPlayer().removeArmies(1);
     }
@@ -109,7 +115,7 @@ public class Game {
     public void nextTurn() {
         if (!isDistributing) {
             reinforcePhase();
-            cardReinforcementPhase();
+            //cardReinforcementPhase();
             attackPhase();
             fortifyPhase();
             setCurrentPlayer();
@@ -143,16 +149,34 @@ public class Game {
         System.out.println(currentPlayer.getName() + " receives " + reinforcements + " reinforcement armies.");
     }
 
-    private void cardReinforcementPhase() {
+    public void cardReinforcementPhase(String type) {
         Player currentPlayer = getCurrentPlayer();
         List<Card> cards = playerCards.get(currentPlayer);
-
-        if (cards.size() >= 3) {
-            int bonus = (cards.size() / 3) * 5;
-            currentPlayer.addArmies(bonus);
-            System.out.println(currentPlayer.getName() + " exchanges cards for " + bonus + " armies.");
-            cards.subList(0, 3).clear();
+        int bonus = 0;
+        switch (type) {
+            case "Infantry":
+                bonus = 4;
+                currentPlayer.removeThreeSameCards(type);
+                break;
+            case "Cavalry":
+                bonus = 5;
+                currentPlayer.removeThreeSameCards(type);
+                break;
+            case "Artillery":
+                bonus = 6;
+                currentPlayer.removeThreeSameCards(type);
+                break;
+            case "oneOfEach":
+                bonus = 5;
+                currentPlayer.removeOneOfEachCards();
         }
+
+        currentPlayer.addArmies(bonus);
+        gui.updateBoard();
+        gui.isSettingCardArmies = true;
+        gui.enableButtons(false);
+        JOptionPane.showMessageDialog(null, currentPlayer + ", please set your bonus armies");
+        System.out.println(currentPlayer.getName() + " exchanges cards for " + bonus + " armies.");
     }
 
     private void attackPhase() {
@@ -174,7 +198,8 @@ public class Game {
         if (territoryConquered) {
             playerCards.get(currentPlayer).add(new Card("Infantry"));
             if (playerCards.get(currentPlayer).size() > 5) {
-                cardReinforcementPhase();
+                gui.useCards();
+                JOptionPane.showMessageDialog(null, "You have more than 5 cards and have to use them.");
             }
         }
     }

@@ -22,7 +22,7 @@ public class BoardCreator {
     }
 
 
-    public JPanel createBoardPanels1(Territory territory, Player currentPlayer) {
+    public JPanel createBoardPanels(Territory territory, Player currentPlayer) {
         territoryLayout.rowHeights = new int[] {20,20,20};
         territoryLayout.columnWidths = new int[] {80};
 

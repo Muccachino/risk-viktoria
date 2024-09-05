@@ -41,17 +41,17 @@ public class UseCards implements ActionListener {
 
         JButton infantryButton = new JButton("3x Infantry");
         infantryButton.addActionListener(this);
-        infantryButton.setActionCommand("infantry");
+        infantryButton.setActionCommand("Infantry");
         infantryButton.setEnabled(game.checkThreeCardCombination("Infantry"));
 
         JButton cavalryButton = new JButton("3x Cavalry");
         cavalryButton.addActionListener(this);
-        cavalryButton.setActionCommand("cavalry");
+        cavalryButton.setActionCommand("Cavalry");
         cavalryButton.setEnabled(game.checkThreeCardCombination("Cavalry"));
 
         JButton artilleryButton = new JButton("3x Artillery");
         artilleryButton.addActionListener(this);
-        artilleryButton.setActionCommand("artillery");
+        artilleryButton.setActionCommand("Artillery");
         artilleryButton.setEnabled(game.checkThreeCardCombination("Artillery"));
 
         JButton oneOfEachButton = new JButton("One of each");
@@ -84,6 +84,18 @@ public class UseCards implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        if(e.getActionCommand().equals("Infantry")) {
+            game.cardReinforcementPhase("Infantry");
+        }
+        if(e.getActionCommand().equals("Cavalry")) {
+            game.cardReinforcementPhase("Cavalry");
+        }
+        if(e.getActionCommand().equals("Artillery")) {
+            game.cardReinforcementPhase("Artillery");
+        }
+        if(e.getActionCommand().equals("oneOfEach")) {
+            game.cardReinforcementPhase("oneOfEach");
+        }
+        frame.dispose();
     }
 }

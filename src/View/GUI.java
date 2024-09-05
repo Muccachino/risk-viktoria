@@ -25,6 +25,7 @@ public class GUI {
     private Territory selectedTo;
     private boolean isFortifying;
     boolean isInitialDistribution = true;
+    public boolean isSettingCardArmies = false;
 
     JButton nextTurnButton;
     JButton fortifyButton;
@@ -72,7 +73,6 @@ public class GUI {
         });
 
         JPanel controlPanel = new JPanel();
-        nextTurnButton.setEnabled(false);
         controlPanel.add(nextTurnButton);
 
         fortifyButton = new JButton("Fortify");
@@ -80,11 +80,22 @@ public class GUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 isFortifying = !isFortifying;
-                fortifyButton.setText(isFortifying ? "Attack" : "Fortify");
-                statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Fortify Mode: " + isFortifying + ")");
+                fortifyButton.setText(isFortifying ? "Done" : "Fortify");
+                nextTurnButton.setEnabled(!isFortifying);
+                useCardButton.setEnabled(!isFortifying);
+                if(isFortifying) {
+                    statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Sending Territory: not selected | Receiving Territory: not selected)");
+                }else {
+                    statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() +
+                            " | Territories: " + game.getCurrentPlayer().getTerritories().size() +
+                            " | Armies: " + game.getCurrentPlayer().getArmyCount() +
+                            " | Cards Total: " + game.getCurrentPlayer().getCards().size() +
+                            " | Infantry: " + game.getCurrentPlayer().getTypedCards("Infantry").size() +
+                            " | Cavalry: " + game.getCurrentPlayer().getTypedCards("Cavalry").size() +
+                            " | Artillery: " + game.getCurrentPlayer().getTypedCards("Artillery").size());
+                }
             }
         });
-        fortifyButton.setEnabled(false);
         controlPanel.add(fortifyButton);
 
 
@@ -95,16 +106,16 @@ public class GUI {
                 useCards();
             }
         });
-        useCardButton.setEnabled(false);
         controlPanel.add(useCardButton);
 
+        enableButtons(false);
         frame.add(controlPanel, BorderLayout.NORTH);
         frame.setVisible(true);
 
         JOptionPane.showMessageDialog(frame, game.getCurrentPlayer().getName() + ", please choose a country to set your army.", "Distribution", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void updateBoard() {
+    public void updateBoard() {
         boardPanel.removeAll();
         boardPanel.setBackground(new Color(153,204,255));
         GridBagLayout boardLayout = new GridBagLayout();
@@ -114,32 +125,7 @@ public class GUI {
         Map<String, Territory> allTerritories = game.getBoard().getTerritories();
         if (game.boardChoice.equals("board1")) {
             for (Territory territory : allTerritories.values()) {
-                JPanel territoryPanel = new BoardCreator(game).createBoardPanels1(territory, currentPlayer);
-                territoryPanel.addMouseListener(new MouseListener() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        if(SwingUtilities.isLeftMouseButton(e)) {
-                            handleTerritoryClick(territory);
-                        }
-                    }
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-                        if(SwingUtilities.isRightMouseButton(e)) {
-                            highlightNeigbors(territory, true);
-                        }
-                    }
-                    @Override
-                    public void mouseReleased(MouseEvent e) {
-                        if(SwingUtilities.isRightMouseButton(e)) {
-                            highlightNeigbors(territory, false);
-                        }
-                    }
-                    @Override
-                    public void mouseEntered(MouseEvent e) {}
-                    @Override
-                    public void mouseExited(MouseEvent e) {}
-                });
-                allTerritoryPanels.put(territory.getName(), territoryPanel);
+                JPanel territoryPanel = createTerritoryPanel(territory);
                 boardPanel.add(territoryPanel);
             }
         }
@@ -151,33 +137,8 @@ public class GUI {
 
             for (int i = 0; i < BoardCoordinates.allCountryCoordinates2.length; i++) {
                 Territory territory = Helper.getTerritoryById(allTerritories, i + 1);
-                JPanel territoryPanel = new BoardCreator(game).createBoardPanels1(territory, currentPlayer);
-                territoryPanel.addMouseListener(new MouseListener() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        if(SwingUtilities.isLeftMouseButton(e)) {
-                            handleTerritoryClick(territory);
-                        }
-                    }
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-                        if(SwingUtilities.isRightMouseButton(e)) {
-                            highlightNeigbors(territory, true);
-                        }
-                    }
-                    @Override
-                    public void mouseReleased(MouseEvent e) {
-                        if(SwingUtilities.isRightMouseButton(e)) {
-                            highlightNeigbors(territory, false);
-                        }
-                    }
-                    @Override
-                    public void mouseEntered(MouseEvent e) {}
-                    @Override
-                    public void mouseExited(MouseEvent e) {}
-                });
+                JPanel territoryPanel = createTerritoryPanel(territory);
 
-                allTerritoryPanels.put(territory.getName(), territoryPanel);
                 boardPanel.add(territoryPanel, Helper.buildBoardConstraints(boardConstraints,
                         BoardCoordinates.allCountryCoordinates2[i][0],
                         BoardCoordinates.allCountryCoordinates2[i][1],
@@ -193,33 +154,8 @@ public class GUI {
 
             for (int i = 0; i < BoardCoordinates.allCountryCoordinates3.length; i++) {
                 Territory territory = Helper.getTerritoryById(allTerritories, i + 1);
-                JPanel territoryPanel = new BoardCreator(game).createBoardPanels1(territory, currentPlayer);
-                territoryPanel.addMouseListener(new MouseListener() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        if(SwingUtilities.isLeftMouseButton(e)) {
-                            handleTerritoryClick(territory);
-                        }
-                    }
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-                        if(SwingUtilities.isRightMouseButton(e)) {
-                            highlightNeigbors(territory, true);
-                        }
-                    }
-                    @Override
-                    public void mouseReleased(MouseEvent e) {
-                        if(SwingUtilities.isRightMouseButton(e)) {
-                            highlightNeigbors(territory, false);
-                        }
-                    }
-                    @Override
-                    public void mouseEntered(MouseEvent e) {}
-                    @Override
-                    public void mouseExited(MouseEvent e) {}
-                });
+                JPanel territoryPanel = createTerritoryPanel(territory);
 
-                allTerritoryPanels.put(territory.getName(), territoryPanel);
                 boardPanel.add(territoryPanel, Helper.buildBoardConstraints(boardConstraints,
                         BoardCoordinates.allCountryCoordinates3[i][0],
                         BoardCoordinates.allCountryCoordinates3[i][1],
@@ -238,6 +174,36 @@ public class GUI {
         boardPanel.repaint();
     }
 
+    public JPanel createTerritoryPanel(Territory territory) {
+        JPanel territoryPanel = new BoardCreator(game).createBoardPanels(territory, game.getCurrentPlayer());
+        territoryPanel.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(SwingUtilities.isLeftMouseButton(e)) {
+                    handleTerritoryClick(territory);
+                }
+            }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if(SwingUtilities.isRightMouseButton(e)) {
+                    highlightNeigbors(territory, true);
+                }
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if(SwingUtilities.isRightMouseButton(e)) {
+                    highlightNeigbors(territory, false);
+                }
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseExited(MouseEvent e) {}
+        });
+        allTerritoryPanels.put(territory.getName(), territoryPanel);
+        return territoryPanel;
+    }
+
     private void handleTerritoryClick(Territory clickedTerritory) {
         if (clickedTerritory == null) {
             JOptionPane.showMessageDialog(frame, "Fehler: Das ausgewählte Territorium existiert nicht.");
@@ -246,7 +212,7 @@ public class GUI {
 
         if(isInitialDistribution) {
             if(game.getCurrentPlayer() == clickedTerritory.getOwner()) {
-                game.distributeInitialArmies(clickedTerritory);
+                game.distributeArmies(clickedTerritory);
                 game.setCurrentPlayer();
                 updateBoard();
             }
@@ -262,48 +228,82 @@ public class GUI {
             else {
                 isInitialDistribution = false;
                 JOptionPane.showMessageDialog(frame, "Distribution done.\nGood Luck everyone.", "Distribution", JOptionPane.INFORMATION_MESSAGE);
-                nextTurnButton.setEnabled(true);
-                fortifyButton.setEnabled(true);
-                useCardButton.setEnabled(true);
+                enableButtons(true);
                 return;
             }
         }
 
+        if(isSettingCardArmies) {
+            if (game.getCurrentPlayer() == clickedTerritory.getOwner()) {
+                game.distributeArmies(clickedTerritory);
+                updateBoard();
+            }
+            else {
+                JOptionPane.showMessageDialog(frame, "Please choose a country you own", "Bonus Armies", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if(game.getCurrentPlayer().getArmyCount() == 0) {
+                isSettingCardArmies = false;
+                JOptionPane.showMessageDialog(frame, "All bonus armies set!", "Bonus Armies", JOptionPane.INFORMATION_MESSAGE);
+                enableButtons(true);
+                return;
+            }
+            return;
+        }
+
         if (isFortifying) {
             if (selectedFrom == null) {
-                if (clickedTerritory.getOwner() == game.getCurrentPlayer()) {
+                if (clickedTerritory.getOwner() == game.getCurrentPlayer() && clickedTerritory.getArmyCount() > 1) {
                     selectedFrom = clickedTerritory;
-                    JOptionPane.showMessageDialog(frame, "Territory selected for fortification: " + selectedFrom.getName() + ". Now select the target territory.");
+                    JOptionPane.showMessageDialog(frame, "Sending Territory selected: " + selectedFrom.getName() + ". \nNow select the receiving territory.");
+                    statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Sending Territory: " + selectedFrom.getName() + " | Receiving Territory: not selected)");
                 } else {
-                    JOptionPane.showMessageDialog(frame, "You must select a territory that you own.");
+                    JOptionPane.showMessageDialog(frame, "You must select a territory that you own with more than one army inside.");
                 }
-            } else {
-                selectedTo = clickedTerritory;
-                if (!selectedFrom.getAdjacentTerritories().contains(selectedTo)) {
+                return;
+            }
+            if (clickedTerritory == selectedFrom) {
+                selectedFrom = null;
+                JOptionPane.showMessageDialog(frame, "Sending Territory unselected");
+                statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Sending Territory: not selected | Receiving Territory: not selected)");
+            }
+            if (selectedFrom != null && selectedTo == null && selectedFrom != clickedTerritory && clickedTerritory.getOwner() == game.getCurrentPlayer()) {
+                if (!selectedFrom.getAdjacentTerritories().contains(clickedTerritory)) {
                     JOptionPane.showMessageDialog(frame, "You can only fortify adjacent territories.");
                     return;
                 }
+                selectedTo = clickedTerritory;
+                statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Sending Territory: " + selectedFrom.getName() + " | Receiving Territory: " + selectedTo.getName() + ")");
 
-                int armiesToMove = Integer.parseInt(JOptionPane.showInputDialog(frame, "Enter number of armies to move (1-3):"));
+                int armiesToMove = Integer.parseInt(JOptionPane.showInputDialog(frame, "Enter number of armies to move (1-" + (selectedFrom.getArmyCount() - 1) + "):"));
                 if (armiesToMove >= 1 && armiesToMove <= selectedFrom.getArmyCount() - 1) {
                     game.fortifyTerritory(selectedFrom, selectedTo, armiesToMove);
                     selectedFrom = null;
                     selectedTo = null;
                     updateBoard();
+                    statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Sending Territory: not selected | Receiving Territory: not selected)");
                 } else {
-                    JOptionPane.showMessageDialog(frame, "Invalid number of armies. Must be between 1 and 3 and not more than available.");
+                    JOptionPane.showMessageDialog(frame, "Invalid number of armies. Must be between 1 and" + (selectedFrom.getArmyCount() - 1) + " and not more than available.");
                 }
             }
-        } else {
+        }
+        if (!isFortifying){
             if (selectedFrom == null) {
-                if (clickedTerritory.getOwner() == game.getCurrentPlayer()) {
+                if (clickedTerritory.getOwner() == game.getCurrentPlayer() && clickedTerritory.getArmyCount() > 1) {
                     selectedFrom = clickedTerritory;
                     JOptionPane.showMessageDialog(frame, "Territory selected for attack: " + selectedFrom.getName() + ". Now select the target territory.");
                 } else {
-                    JOptionPane.showMessageDialog(frame, "You must select a territory that you own.");
+                    JOptionPane.showMessageDialog(frame, "You must select a territory that you own with more than one army inside.");
                 }
-            } else {
-                selectedTo = clickedTerritory;
+                return;
+            }
+            if (clickedTerritory == selectedFrom) {
+                selectedFrom = null;
+                JOptionPane.showMessageDialog(frame, " Attacking Territory unselected");
+            }
+            if(selectedFrom != null && selectedTo == null && selectedFrom != clickedTerritory) {
+                //
                 if (!selectedFrom.getAdjacentTerritories().contains(selectedTo)) {
                     JOptionPane.showMessageDialog(frame, "You can only attack adjacent territories.");
                     return;
@@ -312,7 +312,7 @@ public class GUI {
                     JOptionPane.showMessageDialog(frame, "You cannot attack your own territory.");
                     return;
                 }
-
+                selectedTo = clickedTerritory;
                     System.out.println(selectedFrom.getName() + selectedTo.getName());
                 int attackArmies = Integer.parseInt(JOptionPane.showInputDialog(frame, "Enter number of armies to attack with (1-3):"));
                 if (attackArmies >= 1 && attackArmies <= 3 && attackArmies <= selectedFrom.getArmyCount() - 1) {
@@ -337,7 +337,7 @@ public class GUI {
         }
     }
 
-    private void useCards() {
+    public void useCards() {
         Player currentPlayer = game.getCurrentPlayer();
         List<Card> cards = currentPlayer.getCards();
 
@@ -347,17 +347,6 @@ public class GUI {
         }
 
         game.openUseCardsWindow(frame);
-        /*int response = JOptionPane.showConfirmDialog(frame, "Do you want to trade 3 cards for 5 armies?");
-        if (response == JOptionPane.YES_OPTION) {
-            for (int i = 0; i < 3; i++) {
-                currentPlayer.useCard();
-            }
-            currentPlayer.addArmies(5);
-            JOptionPane.showMessageDialog(frame, "You have received 5 additional armies.");
-
-            distributeBonusArmies(currentPlayer, 5);
-            updateBoard();
-        }*/
     }
 
     private void handleAttackPhase() {
@@ -376,7 +365,7 @@ public class GUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 diceFrame.dispose();
-                game.nextTurn();
+                //game.nextTurn();
                 if (game.checkWinCondition()) {
                     JOptionPane.showMessageDialog(frame, "Player " + game.getCurrentPlayer().getName() + " wins!");
                     System.exit(0);
@@ -482,6 +471,12 @@ public class GUI {
         }
 
         JOptionPane.showMessageDialog(frame, "All bonus armies are distributed.");
+    }
+
+    public void enableButtons(boolean enable) {
+        nextTurnButton.setEnabled(enable);
+        fortifyButton.setEnabled(enable);
+        useCardButton.setEnabled(enable);
     }
 
     public void highlightNeigbors(Territory selectedTerritory, boolean active) {

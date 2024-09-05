@@ -53,10 +53,41 @@ public class Player {
         this.cards.add(card);
     }
 
-    public void useCard() {
-        if (!this.cards.isEmpty()) {
-            this.cards.remove(0);
+    public void removeThreeSameCards(String type) {
+        int count = 0;
+
+        while(count < 3) {
+            for (Card card : this.cards) {
+                if (card.getType().equals(type)) {
+                    this.cards.remove(card);
+                    break;
+                }
+            }
+            count++;
         }
+    }
+
+    public void removeOneOfEachCards() {
+        Card infantryRemoved = null;
+        Card cavalryRemoved = null;
+        Card artilleryRemoved = null;
+
+        while (infantryRemoved == null && cavalryRemoved == null && artilleryRemoved == null) {
+            for (Card card : this.cards) {
+                if (card.getType().equals("Infantry") && infantryRemoved == null) {
+                    infantryRemoved = card;
+                }
+                if (card.getType().equals("Cavalry") && cavalryRemoved == null) {
+                    cavalryRemoved = card;
+                }
+                if (card.getType().equals("Artillery") && artilleryRemoved == null) {
+                    artilleryRemoved = card;
+                }
+            }
+        }
+        this.cards.remove(infantryRemoved);
+        this.cards.remove(cavalryRemoved);
+        this.cards.remove(artilleryRemoved);
     }
 
     // function added to only get cards of specific type
