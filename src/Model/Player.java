@@ -15,7 +15,7 @@ public class Player {
     public Player(String name, Color playerColor) {
         this.name = name;
         this.territories = new ArrayList<>();
-        this.armyCount = 1;
+        this.armyCount = 3;
         this.cards = new ArrayList<>();
         this.playerColor = playerColor;
     }
@@ -35,6 +35,10 @@ public class Player {
     public void addTerritory(Territory territory) {
         this.territories.add(territory);
         this.territories.sort((t1, t2) -> t1.getTerritoryId() - t2.getTerritoryId());
+    }
+
+    public void removeTerritory(Territory territory) {
+        this.territories.remove(territory);
     }
 
     public void addArmies(int count) {

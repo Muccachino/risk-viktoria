@@ -86,13 +86,7 @@ public class GUI {
                 if(isFortifying) {
                     statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Sending Territory: not selected | Receiving Territory: not selected)");
                 }else {
-                    statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() +
-                            " | Territories: " + game.getCurrentPlayer().getTerritories().size() +
-                            " | Armies: " + game.getCurrentPlayer().getArmyCount() +
-                            " | Cards Total: " + game.getCurrentPlayer().getCards().size() +
-                            " | Infantry: " + game.getCurrentPlayer().getTypedCards("Infantry").size() +
-                            " | Cavalry: " + game.getCurrentPlayer().getTypedCards("Cavalry").size() +
-                            " | Artillery: " + game.getCurrentPlayer().getTypedCards("Artillery").size());
+                    setDefaultStatusLabel();
                 }
             }
         });
@@ -163,13 +157,9 @@ public class GUI {
                         BoardCoordinates.allCountryCoordinates3[i][3]));
             }
         }
-        statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() +
-                " | Territories: " + currentPlayer.getTerritories().size() +
-                " | Armies: " + currentPlayer.getArmyCount() +
-                " | Cards Total: " + currentPlayer.getCards().size() +
-                " | Infantry: " + currentPlayer.getTypedCards("Infantry").size() +
-                " | Cavalry: " + currentPlayer.getTypedCards("Cavalry").size() +
-                " | Artillery: " + currentPlayer.getTypedCards("Artillery").size());
+
+        setDefaultStatusLabel();
+
         boardPanel.revalidate();
         boardPanel.repaint();
     }
@@ -293,6 +283,9 @@ public class GUI {
                 if (clickedTerritory.getOwner() == game.getCurrentPlayer() && clickedTerritory.getArmyCount() > 1) {
                     selectedFrom = clickedTerritory;
                     JOptionPane.showMessageDialog(frame, "Territory selected for attack: " + selectedFrom.getName() + ". Now select the target territory.");
+                    statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Attacking Territory: " + selectedFrom.getName() + " | Defending Territory: not selected)");
+                    enableButtons(false);
+
                 } else {
                     JOptionPane.showMessageDialog(frame, "You must select a territory that you own with more than one army inside.");
                 }
@@ -301,35 +294,27 @@ public class GUI {
             if (clickedTerritory == selectedFrom) {
                 selectedFrom = null;
                 JOptionPane.showMessageDialog(frame, " Attacking Territory unselected");
+                setDefaultStatusLabel();
+                enableButtons(true);
             }
             if(selectedFrom != null && selectedTo == null && selectedFrom != clickedTerritory) {
-                //
-                if (!selectedFrom.getAdjacentTerritories().contains(selectedTo)) {
+
+                if (!selectedFrom.getAdjacentTerritories().contains(clickedTerritory)) {
                     JOptionPane.showMessageDialog(frame, "You can only attack adjacent territories.");
                     return;
                 }
-                if (selectedTo.getOwner() == game.getCurrentPlayer()) {
+                if (clickedTerritory.getOwner() == game.getCurrentPlayer()) {
                     JOptionPane.showMessageDialog(frame, "You cannot attack your own territory.");
                     return;
                 }
                 selectedTo = clickedTerritory;
-                    System.out.println(selectedFrom.getName() + selectedTo.getName());
+                statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Attacking Territory: " + selectedFrom.getName() + " | Defending Territory: " + selectedTo.getName() + ")");
+
                 int attackArmies = Integer.parseInt(JOptionPane.showInputDialog(frame, "Enter number of armies to attack with (1-3):"));
                 if (attackArmies >= 1 && attackArmies <= 3 && attackArmies <= selectedFrom.getArmyCount() - 1) {
-                    int defendArmies = Math.min(2, selectedTo.getArmyCount());
-                    game.attackTerritory(selectedFrom, selectedTo, attackArmies, defendArmies);
 
-                    handleAttackPhase();
+                    handleAttackPhase(attackArmies);
 
-                    if (selectedTo.getArmyCount() == 0) {
-                        JOptionPane.showMessageDialog(frame, "Territory conquered! You receive a card.");
-                        game.getCurrentPlayer().addTerritory(selectedTo);
-                        game.getCurrentPlayer().addCard(new Card("Infantry"));
-                    }
-
-                    selectedFrom = null;
-                    selectedTo = null;
-                    updateBoard();
                 } else {
                     JOptionPane.showMessageDialog(frame, "Invalid number of armies. Must be between 1 and 3 and not more than available.");
                 }
@@ -349,8 +334,8 @@ public class GUI {
         game.openUseCardsWindow(frame);
     }
 
-    private void handleAttackPhase() {
-        String diceResult = rollDiceResult();
+    private void handleAttackPhase(int attackArmies) {
+        String diceResult = game.rollDiceResult(selectedFrom, selectedTo, attackArmies);
 
         JFrame diceFrame = new JFrame("Roll Dice");
         diceFrame.setSize(300, 200);
@@ -364,13 +349,16 @@ public class GUI {
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                diceFrame.dispose();
-                //game.nextTurn();
                 if (game.checkWinCondition()) {
                     JOptionPane.showMessageDialog(frame, "Player " + game.getCurrentPlayer().getName() + " wins!");
                     System.exit(0);
                 }
+                game.handleTerritoryConquered(selectedFrom, selectedTo, frame);
                 updateBoard();
+                enableButtons(true);
+                selectedFrom = null;
+                selectedTo = null;
+                diceFrame.dispose();
             }
         });
         diceFrame.add(okButton, BorderLayout.SOUTH);
@@ -378,66 +366,10 @@ public class GUI {
     }
 
 
-    private String rollDiceResult() {
-        if (selectedFrom == null || selectedTo == null) {
-            System.out.println("Fehler: Kein Angriff ausgewählt.");
-        }
-        int attackDiceCount = Math.min(3, selectedFrom.getArmyCount());
-        int defendDiceCount = Math.min(2, selectedTo.getArmyCount());
 
-        int[] attackDice = game.rollDice(attackDiceCount);
-        int[] defendDice = game.rollDice(defendDiceCount);
-        return compareDiceResults(attackDice, defendDice);
-    }
 
-    private String compareDiceResults (int[] attackDice, int[] defendDice){
-        if (attackDice == null || defendDice == null) {
-            System.out.println("Fehler: Keine Würfelzahl vorhanden.");
-        }
-        assert attackDice != null;
-        Arrays.sort(attackDice);
-        assert defendDice != null;
-        Arrays.sort(defendDice);
 
-        StringBuilder result = new StringBuilder();
-        result.append("Attacker's dice: ").append(Arrays.toString(reverseArray(attackDice))).append("\n");
-        result.append("Defender's dice: ").append(Arrays.toString(reverseArray(defendDice))).append("\n");
-
-        int minComparisons = Math.min(attackDice.length, defendDice.length);
-        int attackerLosses = 0;
-        int defenderLosses = 0;
-
-        for (int i = 0; i < minComparisons; i++) {
-            if (attackDice[i] > defendDice[i]) {
-                defenderLosses++;
-            } else {
-                attackerLosses++;
-            }
-        }
-
-        result.append("Attacker loses ").append(attackerLosses).append(" army/armies.\n");
-        result.append("Defender loses ").append(defenderLosses).append(" army/armies.\n");
-
-        selectedFrom.removeArmies(attackerLosses);
-        selectedTo.removeArmies(defenderLosses);
-
-        if (selectedTo.getArmyCount() == 0) {
-            game.getCurrentPlayer().addTerritory(selectedTo);
-            game.getCurrentPlayer().addCard(new Card("Infantry"));
-            result.append("Territory conquered! ").append(selectedTo.getName()).append(" is now owned by ").append(game.getCurrentPlayer().getName()).append(".");
-        }
-
-        return result.toString();
-    }
-    private int[] reverseArray(int[] array) {
-        int[] reversed = new int[array.length];
-        for (int i = 0; i < array.length; i++) {
-            reversed[i] = array[array.length - 1 - i];
-        }
-        return reversed;
-    }
-
-    private void distributeBonusArmies(Player player, int armiesToDistribute) {
+    /*private void distributeBonusArmies(Player player, int armiesToDistribute) {
         while (armiesToDistribute > 0) {
             Territory selectedTerritory = (Territory) JOptionPane.showInputDialog(
                     frame,
@@ -471,12 +403,22 @@ public class GUI {
         }
 
         JOptionPane.showMessageDialog(frame, "All bonus armies are distributed.");
-    }
+    }*/
 
     public void enableButtons(boolean enable) {
         nextTurnButton.setEnabled(enable);
         fortifyButton.setEnabled(enable);
         useCardButton.setEnabled(enable);
+    }
+
+    public void setDefaultStatusLabel() {
+        statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() +
+                " | Territories: " + game.getCurrentPlayer().getTerritories().size() +
+                " | Armies: " + game.getCurrentPlayer().getArmyCount() +
+                " | Cards Total: " + game.getCurrentPlayer().getCards().size() +
+                " | Infantry: " + game.getCurrentPlayer().getTypedCards("Infantry").size() +
+                " | Cavalry: " + game.getCurrentPlayer().getTypedCards("Cavalry").size() +
+                " | Artillery: " + game.getCurrentPlayer().getTypedCards("Artillery").size());
     }
 
     public void highlightNeigbors(Territory selectedTerritory, boolean active) {

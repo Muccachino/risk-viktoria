@@ -93,8 +93,6 @@ public class Main {
             //TODO: Remove initial test cards
             players[i].addCard(new Card("Infantry"));
             players[i].addCard(new Card("Cavalry"));
-            players[i].addCard(new Card("Cavalry"));
-            players[i].addCard(new Card("Cavalry"));
             players[i].addCard(new Card("Artillery"));
         }
 

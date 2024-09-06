@@ -23,6 +23,8 @@ public class Game {
     public String boardChoice;
     GUI gui;
 
+    private int remainingAttackers = 0;
+
     public Game(Player[] players, String boardChoice) {
         this.boardChoice = boardChoice;
         this.players = players;
@@ -115,9 +117,9 @@ public class Game {
     public void nextTurn() {
         if (!isDistributing) {
             reinforcePhase();
-            //cardReinforcementPhase();
+/*            cardReinforcementPhase();
             attackPhase();
-            fortifyPhase();
+            fortifyPhase();*/
             setCurrentPlayer();
             checkGameOver();
         }
@@ -175,11 +177,11 @@ public class Game {
         gui.updateBoard();
         gui.isSettingCardArmies = true;
         gui.enableButtons(false);
-        JOptionPane.showMessageDialog(null, currentPlayer + ", please set your bonus armies");
+        JOptionPane.showMessageDialog(null, currentPlayer.getName() + ", please set your bonus armies");
         System.out.println(currentPlayer.getName() + " exchanges cards for " + bonus + " armies.");
     }
 
-    private void attackPhase() {
+    /*private void attackPhase() {
         Player currentPlayer = getCurrentPlayer();
 
         boolean territoryConquered = false;
@@ -217,9 +219,9 @@ public class Game {
                 }
             }
         }
-    }
+    }*/
 
-    public void attackTerritory(Territory from, Territory to, int attackArmies, int defendArmies) {
+/*    public void attackTerritory(Territory from, Territory to, int attackArmies, int defendArmies) {
         if (from.getOwner() == getCurrentPlayer() && to.getOwner() != getCurrentPlayer()) {
             int[] attackDice = rollDice(attackArmies);
             int[] defendDice = rollDice(defendArmies);
@@ -246,7 +248,7 @@ public class Game {
         } else {
             System.out.println("Invalid attack!");
         }
-    }
+    }*/
 
     public int[] rollDice(int numDice) {
         int[] dice = new int[numDice];
@@ -254,6 +256,73 @@ public class Game {
             dice[i] = random.nextInt(6) + 1;
         }
         return dice;
+    }
+
+    public String rollDiceResult(Territory selectedFrom, Territory selectedTo, int attackArmies) {
+        if (selectedFrom == null || selectedTo == null) {
+            System.out.println("Fehler: Kein Angriff ausgewählt.");
+        }
+
+        int defendDiceCount = Math.min(2, selectedTo.getArmyCount());
+
+        int[] attackDice = rollDice(attackArmies);
+        int[] defendDice = rollDice(defendDiceCount);
+        return compareDiceResults(attackDice, defendDice, selectedFrom, selectedTo);
+    }
+
+    public String compareDiceResults (int[] attackDice, int[] defendDice, Territory selectedFrom, Territory selectedTo) {
+        if (attackDice == null || defendDice == null) {
+            System.out.println("Fehler: Keine Würfelzahl vorhanden.");
+        }
+        assert attackDice != null;
+        Arrays.sort(attackDice);
+        assert defendDice != null;
+        Arrays.sort(defendDice);
+
+        StringBuilder result = new StringBuilder();
+        result.append("Attacker's dice: ").append(Arrays.toString(reverseArray(attackDice))).append("\n");
+        result.append("Defender's dice: ").append(Arrays.toString(reverseArray(defendDice))).append("\n");
+
+        int minComparisons = Math.min(attackDice.length, defendDice.length);
+        int attackerLosses = 0;
+        int defenderLosses = 0;
+
+        for (int i = 0; i < minComparisons; i++) {
+            if (attackDice[i] > defendDice[i]) {
+                defenderLosses++;
+            } else {
+                attackerLosses++;
+            }
+        }
+
+        result.append("Attacker loses ").append(attackerLosses).append(" army/armies.\n");
+        result.append("Defender loses ").append(defenderLosses).append(" army/armies.\n");
+
+        selectedFrom.removeArmies(attackerLosses);
+        selectedTo.removeArmies(defenderLosses);
+        remainingAttackers = attackDice.length - attackerLosses;
+
+        return result.toString();
+    }
+
+    private int[] reverseArray(int[] array) {
+        int[] reversed = new int[array.length];
+        for (int i = 0; i < array.length; i++) {
+            reversed[i] = array[array.length - 1 - i];
+        }
+        return reversed;
+    }
+
+    public void handleTerritoryConquered(Territory attackingTerritory, Territory conqueredTerritory, JFrame parent) {
+        if(conqueredTerritory.getArmyCount() == 0) {
+            conqueredTerritory.getOwner().removeTerritory(conqueredTerritory);
+            conqueredTerritory.setOwner(getCurrentPlayer());
+            attackingTerritory.removeArmies(remainingAttackers);
+            conqueredTerritory.addArmies(remainingAttackers);
+            getCurrentPlayer().addTerritory(conqueredTerritory);
+            getCurrentPlayer().addCard(getRandomCard());
+            JOptionPane.showMessageDialog(parent, getCurrentPlayer().getName() + " conquered " + conqueredTerritory.getName() + "!");
+        }
     }
 
     public void fortifyTerritory(Territory from, Territory to, int armiesToMove) {
@@ -302,6 +371,15 @@ public class Game {
             }
         }
         return (infantry > 0 && cavalry > 0 && artillery > 0);
+    }
+
+    public Card getRandomCard() {
+        int randomNum = random.nextInt(3) + 1;
+        switch (randomNum) {
+            case 2: return new Card("Cavalry");
+            case 3: return new Card("Artillery");
+            default: return new Card("Infantry");
+        }
     }
 
     public boolean isGameOver() {
