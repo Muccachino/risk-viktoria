@@ -162,9 +162,9 @@ public class StartMenu implements ActionListener {
         JLabel choice = new JLabel("Choose a game board:", JLabel.CENTER);
         JPanel buttonPanel = new JPanel(new GridLayout(1, 3));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(0,20,10,20));
-        board1 = createButton("Board 1", null, "board1");
-        board2 = createButton("Board 2", null, "board2");
-        board3 = createButton("Board 3", null, "board3");
+        board1 = createButton("Valoria", null, "board1");
+        board2 = createButton("Aurelia", null, "board2");
+        board3 = createButton("Classic", null, "board3");
 
         JButton startButton = new JButton("Start Game");
         startButton.addActionListener(this);

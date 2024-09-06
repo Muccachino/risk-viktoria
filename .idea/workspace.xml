@@ -8,8 +8,12 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Game.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Model/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Model/Board.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Model/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Model/Player.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Model/Territory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Model/Territory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/View/BoardCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/View/BoardCreator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/View/GUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/View/GUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/View/StartMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/View/StartMenu.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +108,7 @@
       <workItem from="1725428742485" duration="15364000" />
       <workItem from="1725447162783" duration="3720000" />
       <workItem from="1725516452990" duration="17999000" />
-      <workItem from="1725602084718" duration="7472000" />
+      <workItem from="1725602084718" duration="18375000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />

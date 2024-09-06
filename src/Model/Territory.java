@@ -9,14 +9,16 @@ public class Territory {
     private int armyCount;
     private final List<Territory> adjacentTerritories;
     private String continent;
-    private int territoryId;
+    private final int territoryId;
+    private final String boardName;
 
-    public Territory(String name, int territoryId) {
+    public Territory(String name, int territoryId, String boardName) {
         this.name = name;
         this.owner = null;
         this.armyCount = 0;
         this.adjacentTerritories = new ArrayList<>();
         this.territoryId = territoryId;
+        this.boardName = boardName;
     }
 
     public String getName() {
@@ -25,6 +27,10 @@ public class Territory {
     @Override
     public String toString() {
         return name;
+    }
+
+    public String getBoardName() {
+        return this.boardName;
     }
 
     public int getTerritoryId(){return territoryId;}

@@ -17,9 +17,6 @@ public class Game {
 
     private int currentPlayerIndex;
     private final Random random;
-    private final Map<Player, List<Card>> playerCards;
-    private boolean isDistributing;
-    private int armiesToDistribute;
     public String boardChoice;
     GUI gui;
 
@@ -31,79 +28,19 @@ public class Game {
         this.board = new Board(boardChoice);
         this.currentPlayerIndex = 0;
         this.random = new Random();
-        this.playerCards = new HashMap<>();
-        this.isDistributing = false;
-        this.armiesToDistribute = 16;
         initializeGame();
     }
 
     private void initializeGame() {
-        for (Player player : players) {
-            playerCards.put(player, new ArrayList<>());
-        }
-        List<Territory> allTerritories = new ArrayList<>(board.getTerritories().values());
-        Collections.shuffle(allTerritories);
-
-        for (int i = 0; i < allTerritories.size(); i++) {
-            Player player = players[i % players.length];
-            Territory territory = allTerritories.get(i);
-            territory.setOwner(player);
-            territory.addArmies(1);
-            player.addTerritory(territory);
-            //System.out.println("Territory " + territory.getName() + " assigned to " + player.getName());
-        }
-
-        // New Card Types added
-        //TODO: Switch from deck of cards to always random card, to avoid running out of cards
-        List<Card> allCards = new ArrayList<>();
-        for (int i = 0; i < 24; i++) {
-            allCards.add(new Card("Infantry"));
-            allCards.add(new Card("Cavalry"));
-            allCards.add(new Card("Artillery"));
-        }
-        Collections.shuffle(allCards);
 
         gui = new GUI(this);
         javax.swing.SwingUtilities.invokeLater(gui::createAndShowGUI);
     }
 
-    public Player[] getPlayers() {
-        return players;
-    }
-
-    public boolean isDistributing() {
-        return isDistributing;
-    }
-
-    public void startDistributingArmies() {
-        isDistributing = true;
-        armiesToDistribute = 16;
-    }
 
     public void distributeArmies(Territory territory) {
         territory.addArmies(1);
         getCurrentPlayer().removeArmies(1);
-    }
-    public boolean distributeArmy(Territory territory, int armies) {
-        if (!isDistributing || armies <= 0 || armies > armiesToDistribute) {
-            System.out.println("is not distributing" + armies);
-            return false;
-        }
-
-        Player currentPlayer = getCurrentPlayer();
-        if (territory.getOwner() != currentPlayer) {
-            System.out.println("gehört ihm nicht" + territory.getOwner().getName() + currentPlayer.getName());
-            return false;
-        }
-        territory.addArmies(1);
-        armiesToDistribute -= armies;
-
-        if (armiesToDistribute <= 0) {
-            isDistributing = false;
-            return true;
-        }
-
-        return true;
     }
 
     public Board getBoard() {
@@ -114,19 +51,45 @@ public class Game {
         return players[currentPlayerIndex];
     }
 
-    public void nextTurn() {
-        if (!isDistributing) {
-            reinforcePhase();
-/*            cardReinforcementPhase();
-            attackPhase();
-            fortifyPhase();*/
-            setCurrentPlayer();
-            checkGameOver();
+    public boolean allTerritoriesChosen(int territoriesChosen) {
+        switch (this.boardChoice) {
+            case "board1":
+                return territoriesChosen == 24;
+            case "board2":
+                if(this.players.length == 3) {
+                    return territoriesChosen == 33;
+                } else if (this.players.length == 4) {
+                    return territoriesChosen == 32;
+                } else {
+                    return territoriesChosen == 34;
+                }
+            case "board3":
+                if(this.players.length == 2 || this.players.length == 4) {
+                    return territoriesChosen == 40;
+                } else {
+                    return territoriesChosen == 42;
+                }
         }
+        return false;
     }
+
+    public void nextTurn(JFrame parent) {
+        setCurrentPlayer();
+        reinforcePhase();
+        checkGameOver();
+        gui.isInitialDistribution = true;
+        gui.isReinforcing = true;
+        gui.enableButtons(false);
+        gui.updateBoard();
+        JOptionPane.showMessageDialog(parent, getCurrentPlayer().getName() + " receives " + getCurrentPlayer().getArmyCount() +
+                " armies for owned territories and continents.\n" +
+                "Please distribute the new armies to your territories.");
+
+    }
+
     public void setCurrentPlayer(){
-    currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-}
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+    }
 
     public boolean checkWinCondition() {
         for (Territory territory : board.getTerritories().values()) {
@@ -139,7 +102,7 @@ public class Game {
 
     private void reinforcePhase() {
         Player currentPlayer = getCurrentPlayer();
-        int reinforcements = Math.max(3, currentPlayer.getTerritories().size() / 3);
+        int reinforcements = Math.max(3, (int)Math.floor((double) currentPlayer.getTerritories().size() / 3));
 
         for (Continent continent : board.getContinents()) {
             if (currentPlayer.controlsContinent(continent)) {
@@ -153,7 +116,6 @@ public class Game {
 
     public void cardReinforcementPhase(String type) {
         Player currentPlayer = getCurrentPlayer();
-        List<Card> cards = playerCards.get(currentPlayer);
         int bonus = 0;
         switch (type) {
             case "Infantry":
@@ -181,79 +143,14 @@ public class Game {
         System.out.println(currentPlayer.getName() + " exchanges cards for " + bonus + " armies.");
     }
 
-    /*private void attackPhase() {
-        Player currentPlayer = getCurrentPlayer();
-
-        boolean territoryConquered = false;
-        for (Territory from : currentPlayer.getTerritories()) {
-            for (Territory to : from.getAdjacentTerritories()) {
-                if (to.getOwner() != currentPlayer) {
-                    int attackArmies = Math.min(3, from.getArmyCount() - 1);
-                    int defendArmies = Math.min(2, to.getArmyCount());
-                    attackTerritory(from, to, attackArmies, defendArmies);
-                    territoryConquered = true;
-                    break;
-                }
-            }
-            if (territoryConquered) break;
-        }
-        if (territoryConquered) {
-            playerCards.get(currentPlayer).add(new Card("Infantry"));
-            if (playerCards.get(currentPlayer).size() > 5) {
-                gui.useCards();
-                JOptionPane.showMessageDialog(null, "You have more than 5 cards and have to use them.");
-            }
-        }
-    }
-
-    private void fortifyPhase() {
-        Player currentPlayer = getCurrentPlayer();
-
-        for (Territory from : currentPlayer.getTerritories()) {
-            for (Territory to : from.getAdjacentTerritories()) {
-                if (to.getOwner() == currentPlayer && from != to) {
-                    int armiesToMove = Math.min(3, from.getArmyCount() - 1);
-                    fortifyTerritory(from, to, armiesToMove);
-                    System.out.println(currentPlayer.getName() + " moves " + armiesToMove + " armies from " + from.getName() + " to " + to.getName());
-                    return;
-                }
-            }
-        }
-    }*/
-
-/*    public void attackTerritory(Territory from, Territory to, int attackArmies, int defendArmies) {
-        if (from.getOwner() == getCurrentPlayer() && to.getOwner() != getCurrentPlayer()) {
-            int[] attackDice = rollDice(attackArmies);
-            int[] defendDice = rollDice(defendArmies);
-
-            Arrays.sort(attackDice);
-            Arrays.sort(defendDice);
-
-            int losses = 0;
-            for (int i = 0; i < Math.min(attackDice.length, defendDice.length); i++) {
-                if (attackDice[attackDice.length - 1 - i] > defendDice[defendDice.length - 1 - i]) {
-                    to.removeArmies(1);
-                } else {
-                    from.removeArmies(1);
-                    losses++;
-                }
-            }
-
-            if (to.getArmyCount() == 0) {
-                to.setOwner(from.getOwner());
-                to.addArmies(attackArmies - losses);
-                from.removeArmies(attackArmies - losses);
-                System.out.println(from.getOwner().getName() + " conquered " + to.getName());
-            }
-        } else {
-            System.out.println("Invalid attack!");
-        }
-    }*/
-
-    public int[] rollDice(int numDice) {
+    public int[] rollDice(int numDice, boolean neutralTerritory) {
         int[] dice = new int[numDice];
         for (int i = 0; i < numDice; i++) {
-            dice[i] = random.nextInt(6) + 1;
+            if (neutralTerritory) {
+                dice[i] = random.nextInt(2) + 1;
+            } else {
+                dice[i] = random.nextInt(6) + 1;
+            }
         }
         return dice;
     }
@@ -262,11 +159,18 @@ public class Game {
         if (selectedFrom == null || selectedTo == null) {
             System.out.println("Fehler: Kein Angriff ausgewählt.");
         }
+        int defendDiceCount;
+        int[] defendDice;
+        if(selectedTo != null && selectedTo.getOwner() != null) {
+            defendDiceCount = Math.min(2, selectedTo.getArmyCount());
+            defendDice = rollDice(defendDiceCount, false);
+        } else {
+            defendDiceCount = 1;
+            defendDice = rollDice(defendDiceCount, true);
+        }
 
-        int defendDiceCount = Math.min(2, selectedTo.getArmyCount());
+        int[] attackDice = rollDice(attackArmies, false);
 
-        int[] attackDice = rollDice(attackArmies);
-        int[] defendDice = rollDice(defendDiceCount);
         return compareDiceResults(attackDice, defendDice, selectedFrom, selectedTo);
     }
 
@@ -313,22 +217,31 @@ public class Game {
         return reversed;
     }
 
-    public void handleTerritoryConquered(Territory attackingTerritory, Territory conqueredTerritory, JFrame parent) {
+    public void handleTerritoriesAfterBattle(Territory attackingTerritory, Territory conqueredTerritory, JFrame parent) {
         if(conqueredTerritory.getArmyCount() == 0) {
-            conqueredTerritory.getOwner().removeTerritory(conqueredTerritory);
+            if(conqueredTerritory.getOwner() != null) {
+                conqueredTerritory.getOwner().removeTerritory(conqueredTerritory);
+            }
             conqueredTerritory.setOwner(getCurrentPlayer());
             attackingTerritory.removeArmies(remainingAttackers);
             conqueredTerritory.addArmies(remainingAttackers);
             getCurrentPlayer().addTerritory(conqueredTerritory);
             getCurrentPlayer().addCard(getRandomCard());
-            JOptionPane.showMessageDialog(parent, getCurrentPlayer().getName() + " conquered " + conqueredTerritory.getName() + "!");
+            JOptionPane.showMessageDialog(parent, getCurrentPlayer().getName() + " conquered " + conqueredTerritory.getBoardName() + "!");
+        }
+        if (attackingTerritory.getArmyCount() == 0) {
+            attackingTerritory.getOwner().removeTerritory(attackingTerritory);
+            attackingTerritory.setOwner(null);
         }
     }
 
     public void fortifyTerritory(Territory from, Territory to, int armiesToMove) {
-        if (from.getOwner() == getCurrentPlayer() && to.getOwner() == getCurrentPlayer()) {
-            from.removeArmies(armiesToMove);
-            to.addArmies(armiesToMove);
+        from.removeArmies(armiesToMove);
+        to.addArmies(armiesToMove);
+
+        if(from.getArmyCount() == 0) {
+            getCurrentPlayer().removeTerritory(from);
+            from.setOwner(null);
         }
     }
 

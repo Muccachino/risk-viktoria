@@ -12,10 +12,10 @@ public class Player {
     private List<Card> cards;
     private final Color playerColor;
 
-    public Player(String name, Color playerColor) {
+    public Player(String name, Color playerColor, int armyCount) {
         this.name = name;
         this.territories = new ArrayList<>();
-        this.armyCount = 3;
+        this.armyCount = armyCount;
         this.cards = new ArrayList<>();
         this.playerColor = playerColor;
     }

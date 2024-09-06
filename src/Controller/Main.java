@@ -89,11 +89,16 @@ public class Main {
     public void startGame(String[] playerNames) {
         Player[] players = new Player[numOfPlayers];
         for (int i = 0; i < numOfPlayers; i++) {
-            players[i] = new Player(playerNames[i], playerColors[i]);
-            //TODO: Remove initial test cards
-            players[i].addCard(new Card("Infantry"));
-            players[i].addCard(new Card("Cavalry"));
-            players[i].addCard(new Card("Artillery"));
+            switch (numOfPlayers) {
+                case 2:
+                    players[i] = new Player(playerNames[i], playerColors[i], 20);
+                    break;
+                case 3:
+                    players[i] = new Player(playerNames[i], playerColors[i], 25);
+                    break;
+                case 4:
+                    players[i] = new Player(playerNames[i], playerColors[i], 30);
+            }
         }
 
         Game game = new Game(players, boardChoice);

@@ -6,9 +6,47 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Board {
-    String[] continentNames1 = new String[] {"North America", "Europe", "Asia", "Africa"};
-    String[] continentNames2 = new String[] {"North America", "Europe", "South America", "Asia", "Australia"};
+    String[] continentNames1 = new String[] {"Eldoria", "Nymeris", "Vandarra", "Zaruth"};
+    String[] territoryNames1 = new String[] {
+            // Eldoria
+            "Thalnor", "Aeryndor", "Glimwynn", "Stormhold", "Briarmoor", "Frosthelm",
+            // Nymeris
+            "Lythora", "Veridorn", "Astrava", "Noxmere", "Isilmar", "Thornspire",
+            // Vandarra
+            "Drakhar", "Emberfell", "Ravenmoor", "Blackstone", "Silverscar", "Wyrmwatch",
+            // Zaruth
+            "Duskveil", "Morathis", "Ironpeak", "Shadowfen", "Grimstone", "Voidreach"};
+
+    String[] continentNames2 = new String[] {"Mythara", "Solandis", "Eldravar", "Nytheria", "Zylarion"};
+    String[] territoryNames2 = new String[] {
+            // Mythara
+            "Valkora", "Dornhelm", "Serathis", "Kyrel", "Ostara", "Windspire", "Varduun",
+            // Solandis
+            "Caladorn", "Myridia", "Valythor", "Aurelis", "Falcreth", "Gorvann", "Lunaris",
+            // Eldravar
+            "Aranthor", "Brynmoor", "Thornhall", "Ironwood", "Wyrmscar", "Darkhaven", "Stormcrown",
+            // Nytheria
+            "Evershade", "Shadowglen", "Duskmire", "Frostveil", "Blightwood", "Grimreach", "Nightfall",
+            // Zylarion
+            "Zyraxis", "Maelstrom", "Ironspire", "Ravencrest", "Stormbreak", "Nethermoor"};
+
     String[] continentNames3 = new String[] {"North America", "South America", "Europe", "Africa", "Asia", "Australia"};
+    String[] territoryNames3 = new String[] {
+            // North America
+            "Alaska", "Northwest Territory", "Greenland", "Alberta", "Ontario", "Quebec",
+            "Western US", "Eastern US", "Central America",
+            // South America
+            "Venezuela", "Peru", "Brazil", "Argentina",
+            // Europe
+            "Iceland", "Scandinavia", "Ukraine", "Great Britain", "Northern Europe", "Western Europe", "Southern Europe",
+            // Africa
+            "North Africa", "Egypt", "Congo", "East Africa", "South Africa", "Madagascar",
+            // Asia
+            "Siberia", "Yakutsk", "Kamchatka", "Ural", "Irkutsk", "Mongolia", "Afghanistan",
+            "China", "Japan", "Middle East", "India", "Siam",
+            // Australia
+            "Indonesia", "New Guinea", "Western Australia", "Eastern Australia"
+    };
 
     private Map<String, Territory> territories;
     private Continent[] continents;
@@ -20,7 +58,7 @@ public class Board {
             continents = new Continent[4];
 
             for (int i = 1; i <= 24; i++) {
-                territories.put("Territory " + i, new Territory("Territory " + i, i));
+                territories.put("Territory " + i, new Territory("Territory " + i, i, territoryNames1[i-1]));
             }
 
             for (int i = 0; i < 4; i++) {
@@ -39,7 +77,7 @@ public class Board {
                 continents[i] = new Continent(continentNames2[i]);
             }
             for (int i = 1; i <= 34; i++) {
-                Territory territory = new Territory("Territory " + i, i);
+                Territory territory = new Territory("Territory " + i, i, territoryNames2[i-1]);
                 if (i <= 7) {
                     continents[0].addTerritory(territory);
                     territory.setContinent(continents[0].getName());
@@ -71,7 +109,7 @@ public class Board {
                 continents[i] = new Continent(continentNames3[i]);
             }
             for (int i = 1; i <= 42; i++) {
-                Territory territory = new Territory("Territory " + i, i);
+                Territory territory = new Territory("Territory " + i, i, territoryNames3[i-1]);
                 if (i <= 9) {
                     continents[0].addTerritory(territory);
                     territory.setContinent(continents[0].getName());
