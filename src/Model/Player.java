@@ -1,5 +1,7 @@
 package Model;
 
+import Controller.Game;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,6 +13,7 @@ public class Player {
     private int armyCount;
     private List<Card> cards;
     private final Color playerColor;
+    private WinCondition winCondition;
 
     public Player(String name, Color playerColor, int armyCount) {
         this.name = name;
@@ -112,4 +115,13 @@ public class Player {
     public boolean controlsContinent(Continent continent) {
         return new HashSet<>(territories).containsAll(continent.getTerritories());
     }
+
+    public void addWinCondition(Game game, String name, String description, String[] continentNames) {
+        winCondition = new WinCondition(name, description, this, game, continentNames);
+    }
+
+    public WinCondition getWinCondition() {
+        return winCondition;
+    }
+
 }

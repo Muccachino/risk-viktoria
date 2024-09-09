@@ -1,10 +1,7 @@
 package Controller;
 
-import Model.Board;
-import Model.Card;
-import Model.Continent;
-import Model.Player;
-import Model.Territory;
+import Config.WinConditionDetails;
+import Model.*;
 import View.GUI;
 import View.UseCards;
 
@@ -32,7 +29,7 @@ public class Game {
     }
 
     private void initializeGame() {
-
+        addPlayerMissions();
         gui = new GUI(this);
         javax.swing.SwingUtilities.invokeLater(gui::createAndShowGUI);
     }
@@ -49,6 +46,38 @@ public class Game {
 
     public Player getCurrentPlayer() {
         return players[currentPlayerIndex];
+    }
+
+    public void addPlayerMissions() {
+
+        for (Player player : this.players) {
+            int missionNum = random.nextInt(3);
+            String missionName = WinConditionDetails.winConditionNames[missionNum];
+            switch (this.boardChoice) {
+                case "board1":
+                    player.addWinCondition(
+                        this,
+                        missionName,
+                        WinConditionDetails.winConditionDescriptions1[missionNum],
+                        WinConditionDetails.winConditionContinents1[random.nextInt(4)]
+                ); break;
+                case "board2":
+                    player.addWinCondition(
+                            this,
+                            missionName,
+                            WinConditionDetails.winConditionDescriptions2[missionNum],
+                            WinConditionDetails.winConditionContinents2[random.nextInt(4)]
+                    ); break;
+                case "board3":
+                    player.addWinCondition(
+                            this,
+                            missionName,
+                            WinConditionDetails.winConditionDescriptions3[missionNum],
+                            WinConditionDetails.winConditionContinents3[random.nextInt(6)]
+                    ); break;
+            }
+            System.out.println(player.getWinCondition().getDescription());
+        }
     }
 
     public boolean allTerritoriesChosen(int territoriesChosen) {
@@ -76,7 +105,6 @@ public class Game {
     public void nextTurn(JFrame parent) {
         setCurrentPlayer();
         reinforcePhase();
-        checkGameOver();
         gui.isInitialDistribution = true;
         gui.isReinforcing = true;
         gui.enableButtons(false);
@@ -306,9 +334,12 @@ public class Game {
     }
 
     public void checkGameOver() {
+        Player winner = getCurrentPlayer();
         if (isGameOver()) {
-            Player winner = getCurrentPlayer();
-            System.out.println("Controller.Game Over! " + winner.getName() + " wins!");
+            JOptionPane.showMessageDialog(null, "Game Over! " + winner.getName() + " wins!");
+        }
+        if(winner.getWinCondition().checkWinCondition()){
+            JOptionPane.showMessageDialog(null, "Game Over! " + winner.getName() + " wins by finishing the mission!");
         }
     }
 }

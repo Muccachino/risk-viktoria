@@ -7,13 +7,8 @@
     <list default="true" id="e4ccd681-7acc-469b-92af-50d4c0669b87" name="Changes" comment="first commit">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Game.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Model/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Model/Board.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Model/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Model/Player.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Model/Territory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Model/Territory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/View/BoardCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/View/BoardCreator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/View/GUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/View/GUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/View/StartMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/View/StartMenu.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

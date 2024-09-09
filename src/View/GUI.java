@@ -33,6 +33,7 @@ public class GUI {
     JButton nextTurnButton;
     JButton fortifyButton;
     JButton useCardButton;
+    JButton missionButton;
 
     public Map<String, JPanel> allTerritoryPanels = new HashMap<>();
 
@@ -99,6 +100,15 @@ public class GUI {
             }
         });
         controlPanel.add(useCardButton);
+
+        missionButton = new JButton("Mission");
+        missionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(frame, game.getCurrentPlayer().getWinCondition().getDescription());
+            }
+        });
+        controlPanel.add(missionButton);
 
         enableButtons(false);
         frame.add(controlPanel, BorderLayout.NORTH);
@@ -276,6 +286,7 @@ public class GUI {
                 isSettingCardArmies = false;
                 JOptionPane.showMessageDialog(frame, "All bonus armies set!", "Bonus Armies", JOptionPane.INFORMATION_MESSAGE);
                 enableButtons(true);
+                game.checkGameOver();
                 return;
             }
             return;
@@ -311,6 +322,7 @@ public class GUI {
                     selectedFrom = null;
                     selectedTo = null;
                     updateBoard();
+                    game.checkGameOver();
                     statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Sending Territory: not selected | Receiving Territory: not selected)");
                 } else {
                     JOptionPane.showMessageDialog(frame, "Invalid number of armies. Must be between 1 and" + (selectedFrom.getArmyCount() - 1) + " and not more than available.");
@@ -353,6 +365,7 @@ public class GUI {
                 if (attackArmies >= 1 && attackArmies <= 3 && attackArmies <= selectedFrom.getArmyCount()) {
 
                     handleAttackPhase(attackArmies);
+                    game.checkGameOver();
 
                 } else {
                     JOptionPane.showMessageDialog(frame, "Invalid number of armies. Must be between 1 and 3 and not more than available.");
@@ -408,6 +421,7 @@ public class GUI {
         nextTurnButton.setEnabled(enable);
         fortifyButton.setEnabled(enable);
         useCardButton.setEnabled(enable);
+        missionButton.setEnabled(enable);
     }
 
     public void setDefaultStatusLabel() {
