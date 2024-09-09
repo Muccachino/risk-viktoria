@@ -11,7 +11,7 @@ import java.util.*;
 public class Game {
     private final Board board;
     private final Player[] players;
-
+    public final boolean missionsActive;
     private int currentPlayerIndex;
     private final Random random;
     public String boardChoice;
@@ -19,8 +19,9 @@ public class Game {
 
     private int remainingAttackers = 0;
 
-    public Game(Player[] players, String boardChoice) {
+    public Game(Player[] players, String boardChoice, boolean missionsActive) {
         this.boardChoice = boardChoice;
+        this.missionsActive = missionsActive;
         this.players = players;
         this.board = new Board(boardChoice);
         this.currentPlayerIndex = 0;
@@ -29,7 +30,9 @@ public class Game {
     }
 
     private void initializeGame() {
-        addPlayerMissions();
+        if (missionsActive) {
+            addPlayerMissions();
+        }
         gui = new GUI(this);
         javax.swing.SwingUtilities.invokeLater(gui::createAndShowGUI);
     }
@@ -49,33 +52,49 @@ public class Game {
     }
 
     public void addPlayerMissions() {
+        List<Integer> randomContinentsNums = new ArrayList<>();
 
         for (Player player : this.players) {
             int missionNum = random.nextInt(3);
             String missionName = WinConditionDetails.winConditionNames[missionNum];
+            int randomContinents = random.nextInt(4);
             switch (this.boardChoice) {
                 case "board1":
+                    while (randomContinentsNums.contains(randomContinents)){
+                        randomContinents = random.nextInt(4);
+                    }
+                    randomContinentsNums.add(randomContinents);
                     player.addWinCondition(
                         this,
                         missionName,
                         WinConditionDetails.winConditionDescriptions1[missionNum],
-                        WinConditionDetails.winConditionContinents1[random.nextInt(4)]
-                ); break;
+                        WinConditionDetails.winConditionContinents1[randomContinents]
+                    );
+                    break;
                 case "board2":
+                    while (randomContinentsNums.contains(randomContinents)){
+                        randomContinents = random.nextInt(4);
+                    }
+                    randomContinentsNums.add(randomContinents);
                     player.addWinCondition(
                             this,
                             missionName,
                             WinConditionDetails.winConditionDescriptions2[missionNum],
-                            WinConditionDetails.winConditionContinents2[random.nextInt(4)]
+                            WinConditionDetails.winConditionContinents2[randomContinents]
                     ); break;
                 case "board3":
+                    while (randomContinentsNums.contains(randomContinents)){
+                        randomContinents = random.nextInt(6);
+                    }
+                    randomContinentsNums.add(randomContinents);
                     player.addWinCondition(
                             this,
                             missionName,
                             WinConditionDetails.winConditionDescriptions3[missionNum],
-                            WinConditionDetails.winConditionContinents3[random.nextInt(6)]
+                            WinConditionDetails.winConditionContinents3[randomContinents]
                     ); break;
             }
+
             System.out.println(player.getWinCondition().getDescription());
         }
     }
@@ -338,7 +357,7 @@ public class Game {
         if (isGameOver()) {
             JOptionPane.showMessageDialog(null, "Game Over! " + winner.getName() + " wins!");
         }
-        if(winner.getWinCondition().checkWinCondition()){
+        if(missionsActive && winner.getWinCondition().checkWinCondition()){
             JOptionPane.showMessageDialog(null, "Game Over! " + winner.getName() + " wins by finishing the mission!");
         }
     }

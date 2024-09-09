@@ -2,8 +2,6 @@ package View;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
@@ -59,15 +57,12 @@ public class GUI {
         frame.add(statusLabel, BorderLayout.SOUTH);
 
         nextTurnButton = new JButton("Next Turn");
-        nextTurnButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                game.nextTurn(frame);
-                System.out.println("Current Player for this turn: " + game.getCurrentPlayer().getName());
-                if (game.checkWinCondition()) {
-                    JOptionPane.showMessageDialog(frame, "Player " + game.getCurrentPlayer().getName() + " wins!");
-                    System.exit(0);
-                }
+        nextTurnButton.addActionListener(e -> {
+            game.nextTurn(frame);
+            System.out.println("Current Player for this turn: " + game.getCurrentPlayer().getName());
+            if (game.checkWinCondition()) {
+                JOptionPane.showMessageDialog(frame, "Player " + game.getCurrentPlayer().getName() + " wins!");
+                System.exit(0);
             }
         });
 
@@ -75,40 +70,32 @@ public class GUI {
         controlPanel.add(nextTurnButton);
 
         fortifyButton = new JButton("Fortify");
-        fortifyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                isFortifying = !isFortifying;
-                fortifyButton.setText(isFortifying ? "Done" : "Fortify");
-                nextTurnButton.setEnabled(!isFortifying);
-                useCardButton.setEnabled(!isFortifying);
-                if(isFortifying) {
-                    statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Sending Territory: not selected | Receiving Territory: not selected)");
-                }else {
-                    setDefaultStatusLabel();
-                }
+        fortifyButton.addActionListener(e -> {
+            isFortifying = !isFortifying;
+            fortifyButton.setText(isFortifying ? "Done" : "Fortify");
+            nextTurnButton.setEnabled(!isFortifying);
+            useCardButton.setEnabled(!isFortifying);
+            if(isFortifying) {
+                statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Sending Territory: not selected | Receiving Territory: not selected)");
+            }else {
+                setDefaultStatusLabel();
             }
         });
+
         controlPanel.add(fortifyButton);
 
 
         useCardButton = new JButton("Use Cards");
-        useCardButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                useCards();
-            }
-        });
+        useCardButton.addActionListener(e -> useCards());
+
         controlPanel.add(useCardButton);
 
-        missionButton = new JButton("Mission");
-        missionButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(frame, game.getCurrentPlayer().getWinCondition().getDescription());
-            }
-        });
-        controlPanel.add(missionButton);
+        if(game.missionsActive) {
+            missionButton = new JButton("Mission");
+            missionButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, game.getCurrentPlayer().getWinCondition().getDescription()));
+
+            controlPanel.add(missionButton);
+        }
 
         enableButtons(false);
         frame.add(controlPanel, BorderLayout.NORTH);
@@ -225,22 +212,20 @@ public class GUI {
 
             if (!game.allTerritoriesChosen(territoriesChosen)) {
                 JOptionPane.showMessageDialog(frame, game.getCurrentPlayer().getName() + ", please choose a country to set your army.", "Territory Choice", JOptionPane.INFORMATION_MESSAGE);
-                return;
             }
             else {
                 isTerritoryChoice = false;
                 if(!game.initialArmiesDistributed()) {
                     isInitialDistribution = true;
                     JOptionPane.showMessageDialog(frame, "Territories chosen.\nPlace your remaining armies.");
-                    return;
                 }
                 else {
                     JOptionPane.showMessageDialog(frame, "Distribution done.", "Distribution", JOptionPane.INFORMATION_MESSAGE);
                     enableButtons(true);
-                    return;
                 }
 
             }
+            return;
 
         }
 
@@ -261,15 +246,14 @@ public class GUI {
                 if(!isReinforcing) {
                     JOptionPane.showMessageDialog(frame, game.getCurrentPlayer().getName() + ", please choose a country to set your army.", "Distribution", JOptionPane.INFORMATION_MESSAGE);
                 }
-                return;
             }
             else {
                 isInitialDistribution = false;
                 isReinforcing = false;
                 JOptionPane.showMessageDialog(frame, "Distribution done.", "Distribution", JOptionPane.INFORMATION_MESSAGE);
                 enableButtons(true);
-                return;
             }
+            return;
         }
 
         if(isSettingCardArmies) {
@@ -398,20 +382,17 @@ public class GUI {
         diceFrame.add(new JScrollPane(diceResultArea), BorderLayout.CENTER);
 
         JButton okButton = new JButton("OK");
-        okButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (game.checkWinCondition()) {
-                    JOptionPane.showMessageDialog(frame, "Player " + game.getCurrentPlayer().getName() + " wins!");
-                    System.exit(0);
-                }
-                game.handleTerritoriesAfterBattle(selectedFrom, selectedTo, frame);
-                updateBoard();
-                enableButtons(true);
-                selectedFrom = null;
-                selectedTo = null;
-                diceFrame.dispose();
+        okButton.addActionListener(e -> {
+            if (game.checkWinCondition()) {
+                JOptionPane.showMessageDialog(frame, "Player " + game.getCurrentPlayer().getName() + " wins!");
+                System.exit(0);
             }
+            game.handleTerritoriesAfterBattle(selectedFrom, selectedTo, frame);
+            updateBoard();
+            enableButtons(true);
+            selectedFrom = null;
+            selectedTo = null;
+            diceFrame.dispose();
         });
         diceFrame.add(okButton, BorderLayout.SOUTH);
         diceFrame.setVisible(true);
@@ -421,7 +402,9 @@ public class GUI {
         nextTurnButton.setEnabled(enable);
         fortifyButton.setEnabled(enable);
         useCardButton.setEnabled(enable);
-        missionButton.setEnabled(enable);
+        if(game.missionsActive){
+            missionButton.setEnabled(enable);
+        }
     }
 
     public void setDefaultStatusLabel() {

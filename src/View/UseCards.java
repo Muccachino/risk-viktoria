@@ -20,8 +20,8 @@ public class UseCards implements ActionListener {
 
     JDialog frame;
 
-    private JFrame parent;
-    private Game game;
+    private final JFrame parent;
+    private final Game game;
 
     public UseCards(JFrame parent, Game game) {
         this.parent = parent;

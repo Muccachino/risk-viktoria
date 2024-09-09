@@ -1,6 +1,5 @@
 package Controller;
 
-import Model.Card;
 import Model.Player;
 import View.StartMenu;
 
@@ -86,7 +85,7 @@ public class Main {
         return false;
     }
 
-    public void startGame(String[] playerNames) {
+    public void startGame(String[] playerNames, boolean missionsActive) {
         Player[] players = new Player[numOfPlayers];
         for (int i = 0; i < numOfPlayers; i++) {
             switch (numOfPlayers) {
@@ -101,7 +100,7 @@ public class Main {
             }
         }
 
-        Game game = new Game(players, boardChoice);
+        Game game = new Game(players, boardChoice, missionsActive);
         startMenuFrame.dispose();
     }
 

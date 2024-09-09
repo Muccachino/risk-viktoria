@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 
 public class StartMenu implements ActionListener {
     public static final int HEADLINE_HEIGHT = 50;
@@ -36,6 +37,8 @@ public class StartMenu implements ActionListener {
     JButton playerFourColorButton2;
     JButton playerFourColorButton3;
 
+    JCheckBox missionCheck;
+
     JButton board1;
     JButton board2;
     JButton board3;
@@ -57,7 +60,7 @@ public class StartMenu implements ActionListener {
         frame.setResizable(false);
 
 
-        startWindowLayout.rowHeights = new int[] { HEADLINE_HEIGHT, PLAYER_NUMBER, NAME_HEIGHT, NAME_HEIGHT, BOARD_CHOICE_HEIGHT};
+        startWindowLayout.rowHeights = new int[] { HEADLINE_HEIGHT, PLAYER_NUMBER, PLAYER_NUMBER, NAME_HEIGHT, NAME_HEIGHT, BOARD_CHOICE_HEIGHT};
         startWindowLayout.columnWidths = new int[] { PLAYER_NAME_WIDTH, PLAYER_NAME_WIDTH};
 
         JLabel headline = new JLabel("Risk", JLabel.CENTER);
@@ -82,6 +85,13 @@ public class StartMenu implements ActionListener {
         playerNumberPanel.add(twoPlayers);
         playerNumberPanel.add(threePlayers);
         playerNumberPanel.add(fourPlayers);
+
+        JPanel missionPanel = new JPanel(new GridLayout(1,2));
+        JLabel missionQuestion = new JLabel("Missions?", JLabel.CENTER);
+        missionCheck = new JCheckBox("", false);
+        missionCheck.addItemListener(e -> missionCheck.setSelected(e.getStateChange() == ItemEvent.SELECTED));
+        missionPanel.add(missionQuestion);
+        missionPanel.add(missionCheck);
 
         JPanel playerOnePanel = new JPanel(new GridLayout(4, 1));
         playerOnePanel.setBorder(BorderFactory.createLineBorder(PLAYER_AREA_BORDER));
@@ -178,11 +188,12 @@ public class StartMenu implements ActionListener {
 
         startWindowPanel.add(headline, Helper.buildBoardConstraints(startWindowConstraints, 0, 0, 1, 2));
         startWindowPanel.add(playerNumberPanel, Helper.buildBoardConstraints(startWindowConstraints, 1, 0, 1, 2));
-        startWindowPanel.add(playerOnePanel, Helper.buildBoardConstraints(startWindowConstraints, 2, 0, 1, 1));
-        startWindowPanel.add(playerTwoPanel, Helper.buildBoardConstraints(startWindowConstraints, 2, 1, 1, 1));
-        startWindowPanel.add(playerThreePanel, Helper.buildBoardConstraints(startWindowConstraints, 3, 0, 1, 1));
-        startWindowPanel.add(playerFourPanel, Helper.buildBoardConstraints(startWindowConstraints, 3, 1, 1, 1));
-        startWindowPanel.add(boardChoicePanel, Helper.buildBoardConstraints(startWindowConstraints, 4, 0, 1, 2));
+        startWindowPanel.add(missionPanel, Helper.buildBoardConstraints(startWindowConstraints, 2,0,1,1));
+        startWindowPanel.add(playerOnePanel, Helper.buildBoardConstraints(startWindowConstraints, 3, 0, 1, 1));
+        startWindowPanel.add(playerTwoPanel, Helper.buildBoardConstraints(startWindowConstraints, 3, 1, 1, 1));
+        startWindowPanel.add(playerThreePanel, Helper.buildBoardConstraints(startWindowConstraints, 4, 0, 1, 1));
+        startWindowPanel.add(playerFourPanel, Helper.buildBoardConstraints(startWindowConstraints, 4, 1, 1, 1));
+        startWindowPanel.add(boardChoicePanel, Helper.buildBoardConstraints(startWindowConstraints, 5, 0, 1, 2));
 
         startWindowPanel.setBorder(BorderFactory.createLineBorder(PLAYER_AREA_BORDER));
 
@@ -295,7 +306,7 @@ public class StartMenu implements ActionListener {
                     controller.playerNamesSet(playerOneName.getText(), playerTwoName.getText(), playerThreeName.getText(), playerFourName.getText()) &&
                     !playerOneName.getText().equals(playerTwoName.getText())) {
 
-                    controller.startGame(new String[] {playerOneName.getText(), playerTwoName.getText(), playerThreeName.getText(), playerFourName.getText()});
+                    controller.startGame(new String[] {playerOneName.getText(), playerTwoName.getText(), playerThreeName.getText(), playerFourName.getText()}, missionCheck.isSelected());
                 }
         }
     }

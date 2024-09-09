@@ -3,8 +3,6 @@ package Model;
 
 import Controller.Game;
 
-import java.util.List;
-
 public class WinCondition {
 
     private final String name;
@@ -38,7 +36,7 @@ public class WinCondition {
             case "ConquerXTerritoriesWithArmyCount2": return conquerXTerritoriesWithArmyCount2();
         }
         return false;
-    };
+    }
 
     private boolean conquerXTerritories() {
         switch (game.boardChoice) {

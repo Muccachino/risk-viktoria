@@ -60,7 +60,7 @@ public class Territory {
     }
 
     public void removeArmies(int count) {
-        this.armyCount -= count;;
+        this.armyCount -= count;
     }
 
     public List<Territory> getAdjacentTerritories() {

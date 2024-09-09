@@ -11,7 +11,7 @@ public class Player {
     private final String name;
     private final List<Territory> territories;
     private int armyCount;
-    private List<Card> cards;
+    private final List<Card> cards;
     private final Color playerColor;
     private WinCondition winCondition;
 

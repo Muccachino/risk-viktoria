@@ -48,7 +48,7 @@ public class Board {
             "Indonesia", "New Guinea", "Western Australia", "Eastern Australia"
     };
 
-    private Map<String, Territory> territories;
+    private final Map<String, Territory> territories;
     private Continent[] continents;
 
     public Board(String boardChoice) {
