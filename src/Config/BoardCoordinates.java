@@ -1,6 +1,6 @@
 package Config;
 
-// Klasse hinzugefügt um die Koordinaten auszulagern
+// Klasse hinzugefügt, um die Koordinaten auszulagern
 public class BoardCoordinates {
     public static int[][] allCountryCoordinates2 = new int[][] {
             // Top Left

@@ -104,7 +104,7 @@ public class GUI {
         JOptionPane.showMessageDialog(frame, game.getCurrentPlayer().getName() + ", please choose a country to set your army.", "Territory Choice", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // Funktion soweit abgeändert, dass sie jetzt mit Koordinaten funktioniert und dadurch halbwegs vereinheitlicht ist.
+    // Funktion so weit abgeändert, dass sie jetzt mit Koordinaten funktioniert und dadurch halbwegs vereinheitlicht ist.
     public void updateBoard() {
         boardPanel.removeAll();
         boardPanel.setBackground(new Color(153,204,255));
@@ -112,7 +112,9 @@ public class GUI {
         GridBagConstraints boardConstraints = new GridBagConstraints();
 
         Map<String, Territory> allTerritories = game.getBoard().getTerritories();
+
         if (game.boardChoice.equals("board1")) {
+
             for (Territory territory : allTerritories.values()) {
                 JPanel territoryPanel = createTerritoryPanel(territory);
                 boardPanel.add(territoryPanel);
@@ -159,7 +161,7 @@ public class GUI {
         boardPanel.repaint();
     }
 
-    // Aus der updateBoard Funktion ausgelagert um Wiederholungen zu vermeiden.
+    // Aus der updateBoard Funktion ausgelagert, um Wiederholungen zu vermeiden.
     public JPanel createTerritoryPanel(Territory territory) {
         JPanel territoryPanel = new BoardCreator(game).createBoardPanels(territory, game.getCurrentPlayer());
         territoryPanel.addMouseListener(new MouseListener() {
@@ -206,7 +208,6 @@ public class GUI {
                 game.setCurrentPlayer();
                 updateBoard();
                 territoriesChosen++;
-
             }
             else {
                 JOptionPane.showMessageDialog(frame, "Please choose an unclaimed country to set your army.", "Territory Choice", JOptionPane.INFORMATION_MESSAGE);
@@ -226,10 +227,8 @@ public class GUI {
                     JOptionPane.showMessageDialog(frame, "Distribution done.", "Distribution", JOptionPane.INFORMATION_MESSAGE);
                     enableButtons(true);
                 }
-
             }
             return;
-
         }
 
         // Abschnitt abgeändert, sodass dieser am Anfang des Spiels automatisch läuft und nicht erst nach dem Klick eines Buttons.
@@ -331,7 +330,6 @@ public class GUI {
                     JOptionPane.showMessageDialog(frame, "Territory selected for attack: " + selectedFrom.getBoardName() + ". Now select the target territory.");
                     statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Attacking Territory: " + selectedFrom.getBoardName() + " | Defending Territory: not selected)");
                     enableButtons(false);
-
                 } else {
                     JOptionPane.showMessageDialog(frame, "You must select a territory that you own.");
                 }
@@ -344,7 +342,6 @@ public class GUI {
                 enableButtons(true);
             }
             if(selectedFrom != null && selectedTo == null && selectedFrom != clickedTerritory) {
-
                 if (!selectedFrom.getAdjacentTerritories().contains(clickedTerritory)) {
                     JOptionPane.showMessageDialog(frame, "You can only attack adjacent territories.");
                     return;
@@ -451,7 +448,5 @@ public class GUI {
                 neighborPanel.setBackground(new Color(255, 122, 113));
             }
         }
-
     }
-
 }

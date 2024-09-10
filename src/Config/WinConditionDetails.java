@@ -1,6 +1,6 @@
 package Config;
 
-// Klasse hinzugefügt um Details der Missionen auszulagern
+// Klasse hinzugefügt, um Details der Missionen auszulagern
 public class WinConditionDetails {
     public static final String[] winConditionNames = {
             "ConquerXTerritories",

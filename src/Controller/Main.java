@@ -13,14 +13,13 @@ public class Main {
 
     JFrame startMenuFrame;
 
-    int numOfPlayers = 2;
-
     Color playerOneColor;
     Color playerTwoColor;
     Color playerThreeColor;
     Color playerFourColor;
 
     String boardChoice;
+    int numOfPlayers = 2;
 
     public void createStartMenu() {
         startMenuFrame = new StartMenu(this).drawStartMenuFrame();

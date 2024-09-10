@@ -8,7 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-// Wegen der unterschiedlichen Karten und Kombinationen habe ich ein eigenes Fenster erstellt um den Einsatz der Karten
+// Wegen der unterschiedlichen Karten und Kombinationen habe ich ein eigenes Fenster erstellt, um den Einsatz der Karten
 // zu ermöglichen.
 
 public class UseCards implements ActionListener {
@@ -30,7 +30,6 @@ public class UseCards implements ActionListener {
         this.parent = parent;
         this.game = game;
     }
-
 
     public void createUseCardsDialog() {
         frame = new JDialog(this.parent, "Use Cards", true);

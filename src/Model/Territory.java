@@ -13,7 +13,7 @@ public class Territory {
     private final String boardName;
 
     // boardName hinzugefügt, um individuelle AnzeigeNamen einzufügen, ohne die Nachbarschaftsverhältnisse zu beeinflussen.
-    // ID hinzugefügt um besser auf Territorien in manchen Situationen zuzugreifen
+    // ID hinzugefügt, um besser auf Territorien in manchen Situationen zuzugreifen
     public Territory(String name, int territoryId, String boardName) {
         this.name = name;
         this.owner = null;

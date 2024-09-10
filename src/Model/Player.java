@@ -100,7 +100,6 @@ public class Player {
         this.cards.remove(artilleryRemoved);
     }
 
-
     public List<Card> getTypedCards(String type) {
         List<Card> chosenCards = new ArrayList<>();
         for (Card card : this.cards) {
@@ -127,5 +126,4 @@ public class Player {
     public WinCondition getWinCondition() {
         return winCondition;
     }
-
 }
