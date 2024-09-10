@@ -50,3 +50,4 @@
 
     - Ziel des Spiels:
         Die Person, die zuerst alle Territorien kontrolliert, gewinnt das Spiel.
+        Falls zu Beginn Missionen eingestellt wurden, kann ein/e Spieler:in durch das Erfüllen der Mission ebenfalls das Spiel beenden. 
