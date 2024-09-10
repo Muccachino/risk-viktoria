@@ -8,6 +8,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+// Wegen der unterschiedlichen Karten und Kombinationen habe ich ein eigenes Fenster erstellt um den Einsatz der Karten
+// zu ermöglichen.
+
 public class UseCards implements ActionListener {
 
     public static final int USE_CARDS_HEADLINE_HEIGHT = 80;

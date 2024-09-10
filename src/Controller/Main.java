@@ -6,7 +6,7 @@ import View.StartMenu;
 import javax.swing.*;
 import java.awt.*;
 
-// added new StartMenu Window to choose player colors, names and boards
+// Funktionen hinzugefügt, welche sich um das Setzen der Spieleigenschaften aus dem Startmenü kümmern
 public class Main {
 
     private final Color[] playerColors = new Color[4];
@@ -104,6 +104,7 @@ public class Main {
         startMenuFrame.dispose();
     }
 
+    // main auf das Nötigste reduziert
     public static void main(String[] args) {
 
         Main mainController = new Main();

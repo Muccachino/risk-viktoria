@@ -15,6 +15,7 @@ public class Player {
     private final Color playerColor;
     private WinCondition winCondition;
 
+    // Spielerfarben und Missionen hinzugefügt
     public Player(String name, Color playerColor, int armyCount) {
         this.name = name;
         this.territories = new ArrayList<>();
@@ -40,6 +41,7 @@ public class Player {
         this.territories.sort((t1, t2) -> t1.getTerritoryId() - t2.getTerritoryId());
     }
 
+    // Entfernen der Territorien nach einem Kampf oder dem Verschieben hinzugefügt
     public void removeTerritory(Territory territory) {
         this.territories.remove(territory);
     }
@@ -60,6 +62,7 @@ public class Player {
         this.cards.add(card);
     }
 
+    // Funktionen hinzugefügt, welche sich auf die zusätzlichen Kartentypen beziehen
     public void removeThreeSameCards(String type) {
         int count = 0;
 
@@ -97,7 +100,7 @@ public class Player {
         this.cards.remove(artilleryRemoved);
     }
 
-    // function added to only get cards of specific type
+
     public List<Card> getTypedCards(String type) {
         List<Card> chosenCards = new ArrayList<>();
         for (Card card : this.cards) {
@@ -116,6 +119,7 @@ public class Player {
         return new HashSet<>(territories).containsAll(continent.getTerritories());
     }
 
+    // Funktionen für Win Condition hinzugefügt
     public void addWinCondition(Game game, String name, String description, String[] continentNames) {
         winCondition = new WinCondition(name, description, this, game, continentNames);
     }

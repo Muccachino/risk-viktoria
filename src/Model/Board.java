@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Board {
+
+    // Individuelle Namen für Kontinente und Territorien hinzugefügt
     String[] continentNames1 = new String[] {"Eldoria", "Nymeris", "Vandarra", "Zaruth"};
     String[] territoryNames1 = new String[] {
             // Eldoria
@@ -51,6 +53,7 @@ public class Board {
     private final Map<String, Territory> territories;
     private Continent[] continents;
 
+    // Anpassung der Kontinenterstellung, da vorher nur die 4x6 genutzt werden konnte.
     public Board(String boardChoice) {
         territories = new LinkedHashMap<>();
 

@@ -4,14 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e4ccd681-7acc-469b-92af-50d4c0669b87" name="Changes" comment="first commit">
+    <list default="true" id="e4ccd681-7acc-469b-92af-50d4c0669b87" name="Changes" comment="initial distribution alternating, new Use Card Window">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Config/BoardCoordinates.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Config/BoardCoordinates.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Config/TerritoryNeighbors.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Config/TerritoryNeighbors.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Config/WinConditionDetails.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Config/WinConditionDetails.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Game.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Model/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Model/Board.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Model/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Model/Player.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Model/Territory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Model/Territory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Model/WinCondition.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Model/WinCondition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/View/BoardCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/View/BoardCreator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/View/GUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/View/GUI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/View/StartMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/View/StartMenu.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/View/UseCards.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/View/UseCards.java" afterDir="false" />
@@ -110,6 +114,7 @@
       <workItem from="1725447162783" duration="3720000" />
       <workItem from="1725516452990" duration="17999000" />
       <workItem from="1725602084718" duration="18375000" />
+      <workItem from="1725947898165" duration="1771000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />

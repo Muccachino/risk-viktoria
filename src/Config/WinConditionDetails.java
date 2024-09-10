@@ -1,5 +1,6 @@
 package Config;
 
+// Klasse hinzugefügt um Details der Missionen auszulagern
 public class WinConditionDetails {
     public static final String[] winConditionNames = {
             "ConquerXTerritories",
@@ -25,7 +26,7 @@ public class WinConditionDetails {
             "Conquer 18 territories of your choice and place at least two armies in each territory:"
     };
 
-    // "North America", "South America", "Europe", "Africa", "Asia", "Australia"
+
     public static final String[][] winConditionContinents1 = {
             new String[]{"Eldoria", "Nymeris"},
             new String[]{"Vandarra", "Zaruth"},

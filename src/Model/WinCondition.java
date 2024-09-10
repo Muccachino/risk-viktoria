@@ -3,6 +3,7 @@ package Model;
 
 import Controller.Game;
 
+// Klasse hinzugefügt für die Überprüfungen der einzelnen Missionen.
 public class WinCondition {
 
     private final String name;

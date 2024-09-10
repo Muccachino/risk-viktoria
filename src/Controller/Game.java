@@ -29,6 +29,7 @@ public class Game {
         initializeGame();
     }
 
+    // Geändert, sodass hier nur noch die Missionen zugeteilt und die Board View erstellt werden.
     private void initializeGame() {
         if (missionsActive) {
             addPlayerMissions();
@@ -37,7 +38,7 @@ public class Game {
         javax.swing.SwingUtilities.invokeLater(gui::createAndShowGUI);
     }
 
-
+    // Verteilen von Armeen in eine Funktion zusammengefasst.
     public void distributeArmies(Territory territory) {
         territory.addArmies(1);
         getCurrentPlayer().removeArmies(1);
@@ -51,6 +52,7 @@ public class Game {
         return players[currentPlayerIndex];
     }
 
+    // Funktion zur Verteilung der Missionen und es wird darauf geachtet, dass Spieler nicht die gleiche Kontinenteroberung bekommen.
     public void addPlayerMissions() {
         List<Integer> randomContinentsNums = new ArrayList<>();
 
@@ -99,6 +101,8 @@ public class Game {
         }
     }
 
+    // Check eingebaut, der je nach Board und Spieleranzahl prüft, ob eine gleichmäßige Zahl an Territorien
+    // zu Spielbeginn ausgewählt wurden.
     public boolean allTerritoriesChosen(int territoriesChosen) {
         switch (this.boardChoice) {
             case "board1":
@@ -121,6 +125,7 @@ public class Game {
         return false;
     }
 
+    // Hier habe ich ein wenig den Inhalt geändert bzw angepasst, da Funktionen aufgerufen wurden, die keinen Sinn ergaben.
     public void nextTurn(JFrame parent) {
         setCurrentPlayer();
         reinforcePhase();
@@ -138,17 +143,9 @@ public class Game {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
     }
 
-    public boolean checkWinCondition() {
-        for (Territory territory : board.getTerritories().values()) {
-            if (territory.getOwner() != getCurrentPlayer()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private void reinforcePhase() {
         Player currentPlayer = getCurrentPlayer();
+        // Kleine Änderung, dass nach unten abgerundet wird.
         int reinforcements = Math.max(3, (int)Math.floor((double) currentPlayer.getTerritories().size() / 3));
 
         for (Continent continent : board.getContinents()) {
@@ -161,6 +158,8 @@ public class Game {
         System.out.println(currentPlayer.getName() + " receives " + reinforcements + " reinforcement armies.");
     }
 
+    // Funktion angepasst, dass alle Kartentypen und Kombinationen möglich sind.
+    // Außerdem wird die entsprechende Phase gesetzt und alle Button deaktiviert, damit man zunächst nur die Armeen setzen kann.
     public void cardReinforcementPhase(String type) {
         Player currentPlayer = getCurrentPlayer();
         int bonus = 0;
@@ -190,6 +189,8 @@ public class Game {
         System.out.println(currentPlayer.getName() + " exchanges cards for " + bonus + " armies.");
     }
 
+    // Die nächsten drei Funktionen wurden teils aus der GUI in den Controller verschoben und mit den diversen anderen Attack Funktionen,
+    // welche sich teils in Funktionen überschnitten haben, zusammengelegt.
     public int[] rollDice(int numDice, boolean neutralTerritory) {
         int[] dice = new int[numDice];
         for (int i = 0; i < numDice; i++) {
@@ -264,6 +265,7 @@ public class Game {
         return reversed;
     }
 
+    // Funktion ausgelagert, welche sich um die Territorien nach einem Kampf kümmert und auch das Entstehen neutraler Territorien ermöglicht.
     public void handleTerritoriesAfterBattle(Territory attackingTerritory, Territory conqueredTerritory, JFrame parent) {
         if(conqueredTerritory.getArmyCount() == 0) {
             if(conqueredTerritory.getOwner() != null) {
@@ -282,6 +284,7 @@ public class Game {
         }
     }
 
+    // Fortifiy Phase Funktion wurde gestrichen und diese Funktion so abgeändert, dass neutrale Territorien möglich sind.
     public void fortifyTerritory(Territory from, Territory to, int armiesToMove) {
         from.removeArmies(armiesToMove);
         to.addArmies(armiesToMove);
@@ -292,6 +295,7 @@ public class Game {
         }
     }
 
+    // Funktion eingefügt, welche am Anfang des Spiels prüft, ob alle Spieler ihre Startarmeen gesetzt haben.
     public boolean initialArmiesDistributed() {
         for (Player player : this.players) {
             if(player.getArmyCount() != 0) {
@@ -301,10 +305,12 @@ public class Game {
         return true;
     }
 
+    // Funktion eingefügt, die das Cards Window öffnet.
     public void openUseCardsWindow(JFrame parent) {
         new UseCards(parent, this).createUseCardsDialog();
     }
 
+    // Nächste zwei Funktionen wurden eingefügt, um die möglichen Kartenkombinationen im Cards Window korrekt anzuzeigen.
     public boolean checkThreeCardCombination(String type) {
         Player currentPlayer = getCurrentPlayer();
         List<Card> allCards = currentPlayer.getCards();
@@ -333,6 +339,7 @@ public class Game {
         return (infantry > 0 && cavalry > 0 && artillery > 0);
     }
 
+    // Funktion hinzugefügt, um den Spielern eine der drei Kartentypen zu geben.
     public Card getRandomCard() {
         int randomNum = random.nextInt(3) + 1;
         switch (randomNum) {
@@ -342,6 +349,7 @@ public class Game {
         }
     }
 
+    // Eine checkWin Funktion wurde gestrichen und diese beibehalten.
     public boolean isGameOver() {
         Set<Player> activePlayers = new HashSet<>();
         for (Player player : players) {
@@ -352,6 +360,7 @@ public class Game {
         return activePlayers.size() == 1;
     }
 
+    // Funktion erweitert, dass sie auch das jeweilige Missionsziel prüft.
     public void checkGameOver() {
         Player winner = getCurrentPlayer();
         if (isGameOver()) {

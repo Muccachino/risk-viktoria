@@ -9,6 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 
+// Startmenü Fenster erstellt nach dem Beispiel aus meinem eigenen Projekt.
+// Spieleranzahl, Namen, Farben, Boards und Missionen können hier individuell gewählt werden.
+
 public class StartMenu implements ActionListener {
     public static final int HEADLINE_HEIGHT = 50;
     public static final int PLAYER_NUMBER = 50;

@@ -4,6 +4,8 @@ import Model.Territory;
 
 import java.util.Map;
 
+// Prinzip der Nachbarzuweisung habe ich beibehalten, nur die Nachbarn in Board 1 sinnvoll angepasst und die
+// der anderen Boards hinzugefügt.
 public class TerritoryNeighbors {
     public static void setAdjacentTerritories1(Map<String, Territory> territories) {
         // Territory 1

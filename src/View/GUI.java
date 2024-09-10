@@ -56,19 +56,18 @@ public class GUI {
         frame.add(boardPanel, BorderLayout.CENTER);
         frame.add(statusLabel, BorderLayout.SOUTH);
 
+
         nextTurnButton = new JButton("Next Turn");
         nextTurnButton.addActionListener(e -> {
             game.nextTurn(frame);
             System.out.println("Current Player for this turn: " + game.getCurrentPlayer().getName());
-            if (game.checkWinCondition()) {
-                JOptionPane.showMessageDialog(frame, "Player " + game.getCurrentPlayer().getName() + " wins!");
-                System.exit(0);
-            }
         });
 
         JPanel controlPanel = new JPanel();
         controlPanel.add(nextTurnButton);
 
+        // Der Button deaktiviert nun die anderen Button, sodass man beim Verschieben der Einheiten nichts anderes machen kann,
+        // bis man den Button erneut gedrückt hat.
         fortifyButton = new JButton("Fortify");
         fortifyButton.addActionListener(e -> {
             isFortifying = !isFortifying;
@@ -84,12 +83,13 @@ public class GUI {
 
         controlPanel.add(fortifyButton);
 
-
+        // Button öffnet jetzt das Fenster zum Auswählen der Kartenkombinationen.
         useCardButton = new JButton("Use Cards");
         useCardButton.addActionListener(e -> useCards());
 
         controlPanel.add(useCardButton);
 
+        // Button hinzugefügt, der einem die Mission des aktuellen Spielers anzeigt
         if(game.missionsActive) {
             missionButton = new JButton("Mission");
             missionButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, game.getCurrentPlayer().getWinCondition().getDescription()));
@@ -104,6 +104,7 @@ public class GUI {
         JOptionPane.showMessageDialog(frame, game.getCurrentPlayer().getName() + ", please choose a country to set your army.", "Territory Choice", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    // Funktion soweit abgeändert, dass sie jetzt mit Koordinaten funktioniert und dadurch halbwegs vereinheitlicht ist.
     public void updateBoard() {
         boardPanel.removeAll();
         boardPanel.setBackground(new Color(153,204,255));
@@ -158,6 +159,7 @@ public class GUI {
         boardPanel.repaint();
     }
 
+    // Aus der updateBoard Funktion ausgelagert um Wiederholungen zu vermeiden.
     public JPanel createTerritoryPanel(Territory territory) {
         JPanel territoryPanel = new BoardCreator(game).createBoardPanels(territory, game.getCurrentPlayer());
         territoryPanel.addMouseListener(new MouseListener() {
@@ -188,12 +190,13 @@ public class GUI {
         return territoryPanel;
     }
 
+
     private void handleTerritoryClick(Territory clickedTerritory) {
         if (clickedTerritory == null) {
             JOptionPane.showMessageDialog(frame, "Fehler: Das ausgewählte Territorium existiert nicht.");
             return;
         }
-
+        // Abschnitt hinzugefügt, welcher aktiv ist, wenn am Anfang die Territorien ausgewählt werden.
         if(isTerritoryChoice) {
             if (clickedTerritory.getOwner() == null) {
                 clickedTerritory.setOwner(game.getCurrentPlayer());
@@ -229,6 +232,8 @@ public class GUI {
 
         }
 
+        // Abschnitt abgeändert, sodass dieser am Anfang des Spiels automatisch läuft und nicht erst nach dem Klick eines Buttons.
+        // Außerdem wird nicht mehr eine fixe Armeezahl verteilt (was nicht richtig funktioniert hat), sondern eine anhand der Spielerarmeen.
         if(isInitialDistribution) {
             if(game.getCurrentPlayer() == clickedTerritory.getOwner() || clickedTerritory.getOwner() == null) {
                 game.distributeArmies(clickedTerritory);
@@ -256,6 +261,7 @@ public class GUI {
             return;
         }
 
+        // Abschnitt hinzugefügt, dass man Kartenarmeen mittels Klick verteilen kann und nicht mehr über ein Dropdown Fenster.
         if(isSettingCardArmies) {
             if (game.getCurrentPlayer() == clickedTerritory.getOwner()) {
                 game.distributeArmies(clickedTerritory);
@@ -276,6 +282,9 @@ public class GUI {
             return;
         }
 
+        // Man kann das erste Territorium wieder abwählen,
+        // das Statusfenster zeigt in dieser Phase die ausgewählten Territorien an,
+        // Territorien können vollständig geleert und somit neutral werden
         if (isFortifying) {
             if (selectedFrom == null) {
                 if (clickedTerritory.getOwner() == game.getCurrentPlayer() && clickedTerritory.getArmyCount() > 0) {
@@ -313,6 +322,8 @@ public class GUI {
                 }
             }
         }
+
+        // Die Änderungen zur Fortification gelten auch beim Angriff.
         if (!isFortifying){
             if (selectedFrom == null) {
                 if (clickedTerritory.getOwner() == game.getCurrentPlayer() && clickedTerritory.getArmyCount() >= 1) {
@@ -358,6 +369,7 @@ public class GUI {
         }
     }
 
+    // Öffnet das Kartenfenster
     public void useCards() {
         Player currentPlayer = game.getCurrentPlayer();
         List<Card> cards = currentPlayer.getCards();
@@ -383,7 +395,7 @@ public class GUI {
 
         JButton okButton = new JButton("OK");
         okButton.addActionListener(e -> {
-            if (game.checkWinCondition()) {
+            if (game.isGameOver()) {
                 JOptionPane.showMessageDialog(frame, "Player " + game.getCurrentPlayer().getName() + " wins!");
                 System.exit(0);
             }
@@ -398,6 +410,7 @@ public class GUI {
         diceFrame.setVisible(true);
     }
 
+    // Funktion hinzugefügt, welche die Buttons aktiviert oder deaktiviert, während einer Phase
     public void enableButtons(boolean enable) {
         nextTurnButton.setEnabled(enable);
         fortifyButton.setEnabled(enable);
@@ -407,6 +420,7 @@ public class GUI {
         }
     }
 
+    // Funktion hinzugefügt um die allgemeine Statusleiste nach einem Kampf oder Verschieben von Armeen wiederherzustellen.
     public void setDefaultStatusLabel() {
         statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() +
                 " | Territories: " + game.getCurrentPlayer().getTerritories().size() +
@@ -417,6 +431,7 @@ public class GUI {
                 " | Artillery: " + game.getCurrentPlayer().getTypedCards("Artillery").size());
     }
 
+    // Funktion hinzugefügt, welche beim Rechtsklick auf ein Territorium die Nachbarn hervorhebt.
     public void highlightNeighbors(Territory selectedTerritory, boolean active) {
         List<Territory> allNeighbors = game.getBoard().getTerritory(selectedTerritory.getName()).getAdjacentTerritories();
         List<JPanel> allNeighborPanels = new ArrayList<>();
