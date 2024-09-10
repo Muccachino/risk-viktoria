@@ -56,6 +56,7 @@ public class GUI {
         frame.add(boardPanel, BorderLayout.CENTER);
         frame.add(statusLabel, BorderLayout.SOUTH);
 
+        statusLabel.setFont(new Font("Sans-Serif", Font.PLAIN, 16));
 
         nextTurnButton = new JButton("Next Turn");
         nextTurnButton.addActionListener(e -> {
@@ -73,6 +74,8 @@ public class GUI {
             if(game.numOfFortifications < 3) {
                 isFortifying = !isFortifying;
                 fortifyButton.setText(isFortifying ? "Done" : "Fortify");
+                selectedFrom = null;
+                selectedTo = null;
                 nextTurnButton.setEnabled(!isFortifying);
                 useCardButton.setEnabled(!isFortifying);
                 if(isFortifying) {
@@ -387,6 +390,7 @@ public class GUI {
         String diceResult = game.rollDiceResult(selectedFrom, selectedTo, attackArmies);
 
         JFrame diceFrame = new JFrame("Roll Dice");
+        diceFrame.setUndecorated(true);
         diceFrame.setSize(300, 200);
         diceFrame.setLayout(new BorderLayout());
 
@@ -408,6 +412,7 @@ public class GUI {
             diceFrame.dispose();
         });
         diceFrame.add(okButton, BorderLayout.SOUTH);
+        diceFrame.setLocationRelativeTo(null);
         diceFrame.setVisible(true);
     }
 
@@ -430,6 +435,8 @@ public class GUI {
                 " | Infantry: " + game.getCurrentPlayer().getTypedCards("Infantry").size() +
                 " | Cavalry: " + game.getCurrentPlayer().getTypedCards("Cavalry").size() +
                 " | Artillery: " + game.getCurrentPlayer().getTypedCards("Artillery").size());
+        statusLabel.setBackground(game.getCurrentPlayer().getPlayerColor());
+        statusLabel.setOpaque(true);
     }
 
     // Funktion hinzugefügt, welche beim Rechtsklick auf ein Territorium die Nachbarn hervorhebt.

@@ -311,6 +311,9 @@ public class StartMenu implements ActionListener {
 
                     controller.startGame(new String[] {playerOneName.getText(), playerTwoName.getText(), playerThreeName.getText(), playerFourName.getText()}, missionCheck.isSelected());
                 }
+                else {
+                    JOptionPane.showMessageDialog(null, "Please enter all player names and choose player colors and a board!");
+                }
         }
     }
 }

@@ -230,17 +230,26 @@ public class Game {
         }
         assert attackDice != null;
         Arrays.sort(attackDice);
+        attackDice = reverseArray(attackDice);
         assert defendDice != null;
         Arrays.sort(defendDice);
+        defendDice = reverseArray(defendDice);
 
         StringBuilder result = new StringBuilder();
-        result.append("Attacker's dice: ").append(Arrays.toString(reverseArray(attackDice))).append("\n");
-        result.append("Defender's dice: ").append(Arrays.toString(reverseArray(defendDice))).append("\n");
+        result.append("Attacker's dice: ").append(Arrays.toString(attackDice)).append("\n");
+        result.append("Defender's dice: ").append(Arrays.toString(defendDice)).append("\n");
 
         int minComparisons = Math.min(attackDice.length, defendDice.length);
         int attackerLosses = 0;
         int defenderLosses = 0;
 
+        for(int dice : attackDice) {
+            System.out.println(dice);
+        }
+
+        for(int dice : defendDice) {
+            System.out.println(dice);
+        }
         for (int i = 0; i < minComparisons; i++) {
             if (attackDice[i] > defendDice[i]) {
                 defenderLosses++;
@@ -269,15 +278,20 @@ public class Game {
 
     // Funktion ausgelagert, welche sich um die Territorien nach einem Kampf kümmert und auch das Entstehen neutraler Territorien ermöglicht.
     public void handleTerritoriesAfterBattle(Territory attackingTerritory, Territory conqueredTerritory, JFrame parent) {
-        if(conqueredTerritory.getArmyCount() == 0) {
+        if(conqueredTerritory.getArmyCount() == 0 || conqueredTerritory.getArmyCount() == -1) {
             if(conqueredTerritory.getOwner() != null) {
                 conqueredTerritory.getOwner().removeTerritory(conqueredTerritory);
+                getCurrentPlayer().addCard(getRandomCard());
             }
             conqueredTerritory.setOwner(getCurrentPlayer());
             attackingTerritory.removeArmies(remainingAttackers);
-            conqueredTerritory.addArmies(remainingAttackers);
+            if(conqueredTerritory.getArmyCount() == -1) {
+                conqueredTerritory.addArmies(remainingAttackers + 1);
+            }else {
+                conqueredTerritory.addArmies(remainingAttackers);
+            }
             getCurrentPlayer().addTerritory(conqueredTerritory);
-            getCurrentPlayer().addCard(getRandomCard());
+
             JOptionPane.showMessageDialog(parent, getCurrentPlayer().getName() + " conquered " + conqueredTerritory.getBoardName() + "!");
         }
         if (attackingTerritory.getArmyCount() == 0) {
