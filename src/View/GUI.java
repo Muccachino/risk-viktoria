@@ -70,14 +70,18 @@ public class GUI {
         // bis man den Button erneut gedrückt hat.
         fortifyButton = new JButton("Fortify");
         fortifyButton.addActionListener(e -> {
-            isFortifying = !isFortifying;
-            fortifyButton.setText(isFortifying ? "Done" : "Fortify");
-            nextTurnButton.setEnabled(!isFortifying);
-            useCardButton.setEnabled(!isFortifying);
-            if(isFortifying) {
-                statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Sending Territory: not selected | Receiving Territory: not selected)");
-            }else {
-                setDefaultStatusLabel();
+            if(game.numOfFortifications < 3) {
+                isFortifying = !isFortifying;
+                fortifyButton.setText(isFortifying ? "Done" : "Fortify");
+                nextTurnButton.setEnabled(!isFortifying);
+                useCardButton.setEnabled(!isFortifying);
+                if(isFortifying) {
+                    statusLabel.setText("Current Player: " + game.getCurrentPlayer().getName() + " (Sending Territory: not selected | Receiving Territory: not selected)");
+                }else {
+                    setDefaultStatusLabel();
+                }
+            } else {
+                JOptionPane.showMessageDialog(frame, "You can't fortify more than 3 territories");
             }
         });
 

@@ -40,6 +40,7 @@
 
         + Fortifizierungsphase:
         Ein/e Spieler:in kann Armeen von einem seiner/ihrer Territorien auf ein angrenzendes eigenes Territorium verschieben.
+        Pro Zug sind maximal 3 Fortifizierungen möglich.
         Die Anzahl der Armeeeinheiten, die verschoben wird ist frei wählbar.
         Auch hier können Territorien vollständig geräumt werden, sodass die Territorien neutral werden.
 

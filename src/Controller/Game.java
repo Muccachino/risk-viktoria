@@ -18,6 +18,7 @@ public class Game {
     GUI gui;
 
     private int remainingAttackers = 0;
+    public int numOfFortifications = 0;
 
     public Game(Player[] players, String boardChoice, boolean missionsActive) {
         this.boardChoice = boardChoice;
@@ -131,6 +132,7 @@ public class Game {
         reinforcePhase();
         gui.isInitialDistribution = true;
         gui.isReinforcing = true;
+        numOfFortifications = 0;
         gui.enableButtons(false);
         gui.updateBoard();
         JOptionPane.showMessageDialog(parent, getCurrentPlayer().getName() + " receives " + getCurrentPlayer().getArmyCount() +
@@ -293,6 +295,7 @@ public class Game {
             getCurrentPlayer().removeTerritory(from);
             from.setOwner(null);
         }
+        numOfFortifications++;
     }
 
     // Funktion eingefügt, welche am Anfang des Spiels prüft, ob alle Spieler ihre Startarmeen gesetzt haben.
